@@ -3,6 +3,7 @@ from flask import *
 import psycopg2
 import psycopg2.extras
 import re
+from ConnectionManager import ConnectionManager
 from optimized import db_connection as dbc
 import os
 from werkzeug.utils import secure_filename
@@ -12,20 +13,24 @@ app = Flask(__name__)
 app.secret_key = 'admin_dhc'
 
 #upload img documentation
-UPLOAD_FOLDER = 'static/images/'
+UPLOAD_FOLDER = 'cache/images/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 
 
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "db_colorization"
-DB_USER = "postgres"
-DB_PASS = "djmn@1234"
+# DB_HOST = "localhost"
+# DB_PORT = "5432"
+# DB_NAME = "db_colorization"
+# DB_USER = "postgres"
+# DB_PASS = "djmn@1234"
 
-conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
+# conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
+
+# getting the postgress connection
+conn = ConnectionManager().getConnection()
+
 
 
 @app.route('/')
@@ -133,7 +138,7 @@ def dashboard2():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
 
-def convertTobinary(filename):
+def convertToBinary(filename):
     with open(filename,'rb') as file:
         binarydata= file.read()
     return binarydata
@@ -181,8 +186,13 @@ def convertBinarytoFile(binarydata,filename):
 def render_colorizerPage():
     
     if request.method == 'POST' and 'img_filename' in request.files:
+        file = request.files['img_filename']
+        filename = secure_filename(file.filename)
+        filePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filePath)
+        convertPic = convertToBinary(filePath)
 
-        return render_template('colorize.html')
+        return render_template('colorize.html', data=convertPic)
     return redirect(url_for('dashboard'))
 
 if __name__ == "__main__":
