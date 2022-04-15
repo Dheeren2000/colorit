@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = 'admin_dhc'
 
 #upload img documentation
-UPLOAD_FOLDER = 'cache/images/'
+UPLOAD_FOLDER = 'static/cache/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
@@ -215,15 +215,39 @@ def render_colorizerPage():
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(unique_id,))
         imageData = cursor.fetchone()
+
         print(imageData[1])
         print(imageData)
-        convertBinarytoFile(imageData[1],os.path.join(app.config['UPLOAD_FOLDER'],imageData[3]))
-        convertBinarytoFile(imageData[2],os.path.join(app.config['UPLOAD_FOLDER'],'c_' + imageData[3]))
-        return render_template('colorize.html', data=unique_id)
+
+        imgFileName = imageData[3]
+
+        bw_filePath = os.path.join(app.config['UPLOAD_FOLDER'], imgFileName)
+        color_filePath = os.path.join(app.config['UPLOAD_FOLDER'],'c_' + imgFileName)
+
+        # retriving the image files
+        convertBinarytoFile(imageData[1], bw_filePath)
+        convertBinarytoFile(imageData[2], color_filePath)
+
+
+        fileDict = {
+            'filename' : imgFileName,
+            'ori_file' : bw_filePath, 
+            'color_file' : color_filePath
+        }
+
+        print(fileDict)
+
+        # redirecting to colorize page
+        return render_template('colorize.html', data = fileDict)
+
     return redirect(url_for('dashboard'))
 
 
-
+@app.route('/ret_dashboard')
+def redirect_Dashboard():
+    for fileName in os.listdir(app.config['UPLOAD_FOLDER']):
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'],fileName))
+    return redirect(url_for('dashboard'))
 
 if __name__ == "__main__":
     app.run(debug=True)
