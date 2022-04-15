@@ -14,6 +14,7 @@ class ConnectionManager:
     
     def getConnection(self):
         
+        # creating the connection object
         self.conn =  psycopg2.connect(host=self.DB_HOST,
                                     port=self.DB_PORT, 
                                     dbname=self.DB_NAME, 
