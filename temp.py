@@ -2,7 +2,7 @@ from flask import *
 import psycopg2
 import psycopg2.extras
 import re
-from ConnectionManager import ConnectionManager
+from postgres.ConnectionManager import ConnectionManager
 from services import Services
 
 app = Flask(__name__)
