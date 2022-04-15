@@ -2,7 +2,7 @@ from flask import *
 import psycopg2
 import psycopg2.extras
 import re
-from ConnectionManager import ConnectionManager
+from dbConnector import ConnectionManager
 
 class Services(ConnectionManager):
     
