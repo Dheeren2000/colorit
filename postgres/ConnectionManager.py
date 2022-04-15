@@ -10,7 +10,7 @@ class ConnectionManager:
         self.DB_PORT = "5432"
         self.DB_NAME = "db_colorization"
         self.DB_USER = "postgres"
-        self.DB_PASS = "djmn@1234"
+        self.DB_PASS = "djmn@123"
     
     def getConnection(self):
         

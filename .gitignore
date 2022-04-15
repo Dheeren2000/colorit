@@ -1,5 +1,4 @@
 # folders
 venv
 .vscode
-__pycache__
-postgres/
+__pycache__/
