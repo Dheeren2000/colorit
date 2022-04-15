@@ -15,15 +15,15 @@ app.secret_key = 'admin_dhc'
 UPLOAD_FOLDER = 'static/images/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 
 
 DB_HOST = "localhost"
 DB_PORT = "5432"
-DB_NAME = "test_color"
+DB_NAME = "db_colorization"
 DB_USER = "postgres"
-DB_PASS = "Dheeren123$"
+DB_PASS = "djmn@1234"
 
 conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
 
@@ -143,45 +143,47 @@ def convertBinarytoFile(binarydata,filename):
         file.write(binarydata)
 
 
-@app.route('/uploadImage', methods=['POST','GET'])
-def uploadImage():
-    return render_template('upload_imagePage.html')
+# @app.route('/uploadImage', methods=['POST','GET'])
+# def uploadImage():
+#     return render_template('upload_imagePage.html')
 
 
-@app.route('/uploadImage_success', methods=['POST','GET'])
-def upload_Image_success():
-    msg=''
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    if 'file' not in request.files:
-        msg = 'no file part'
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename=='':
-        msg = 'no image selected for uploading'
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        msg = 'image successfully uploaded'
-        convertPic = convertTobinary(filename)
-        cursor.execute('Insert into Save_image (Image) values (%s)', (convertPic))
-        conn.commit()
-        msg = 'image successfully uploaded'
-        return render_template('upload_imagePage.html', filename=filename, msg=msg)
+# @app.route('/uploadImage_success', methods=['POST','GET'])
+# def upload_Image_success():
+#     msg=''
+#     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+#     if 'file' not in request.files:
+#         msg = 'no file part'
+#         return redirect(request.url)
+#     file = request.files['file']
+#     if file.filename=='':
+#         msg = 'no image selected for uploading'
+#         return redirect(request.url)
+#     if file and allowed_file(file.filename):
+#         filename = secure_filename(file.filename)
+#         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#         msg = 'image successfully uploaded'
+#         convertPic = convertTobinary(filename)
+#         cursor.execute('Insert into Save_image (Image) values (%s)', (convertPic))
+#         conn.commit()
+#         msg = 'image successfully uploaded'
+#         return render_template('upload_imagePage.html', filename=filename, msg=msg)
         
-    else:
-        return redirect(request.url)
+#     else:
+#         return redirect(request.url)
     
-@app.route('/display')
-def display_image(filename):
+# @app.route('/display')
+# def display_image(filename):
     
-    return redirect(url_for('static', filename='images/' + filename), code=301, filename=filename)
+#     return redirect(url_for('static', filename='images/' + filename), code=301, filename=filename)
 
 @app.route('/colorize', methods=['POST'])
-def colorize_image():
-    if request.method == 'POST' and 'img_filename' in request.form:
-        filename = request.form['img_filename']
-        return render_template('colorize.html', data=filename)
+def render_colorizerPage():
+    
+    if request.method == 'POST' and 'img_filename' in request.files:
+
+        return render_template('colorize.html')
+    return redirect(url_for('dashboard'))
 
 if __name__ == "__main__":
     app.run(debug=True)

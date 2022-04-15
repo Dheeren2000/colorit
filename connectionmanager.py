@@ -8,14 +8,15 @@ class ConnectionManager:
         
         self.DB_HOST = "localhost"
         self.DB_PORT = "5432"
-        self.DB_NAME = "test_color"
+        self.DB_NAME = "db_colorization"
         self.DB_USER = "postgres"
-        self.DB_PASS = "Dheeren123$"
+        self.DB_PASS = "djmn@1234"
     
     def getConnection(self):
         
         ConnectionManager.conn =  psycopg2.connect(host=self.DB_HOST, port=self.DB_PORT, dbname=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS)
         return ConnectionManager.conn
+
 # con = ConnectionManager()
 # con.getConnection()
 # print('connection successfull')        
