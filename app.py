@@ -1,6 +1,7 @@
 from flask import *
 #from flask_sqlalchemy import SQLAlchemy
 import psycopg2
+import secrets
 import psycopg2.extras
 import re
 from postgres.ConnectionManager import ConnectionManager
@@ -192,8 +193,33 @@ def render_colorizerPage():
         file.save(filePath)
         convertPic = convertToBinary(filePath)
 
-        return render_template('colorize.html', data=convertPic)
+        print(f'name of file : {filename}')
+
+        print('Session ID for the user : {}'.format(session['id']))
+
+        # generating the unique id for the given tuple
+        unique_id = secrets.token_hex(16)
+        print(unique_id)
+
+        # inserting the file into database 
+        
+        # color
+        # cache save color
+
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO imagedata (grayImage, rgbImage, fileName, userId, uniqueId) VALUES(%s,%s,%s,%s,%s)', 
+                        (psycopg2.Binary(convertPic), psycopg2.Binary(convertPic), filename, session['id'], unique_id))
+        conn.commit()
+
+        os.remove(filePath)
+
+        # remove color
+
+        return render_template('colorize.html', data=unique_id)
     return redirect(url_for('dashboard'))
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
