@@ -20,8 +20,4 @@ class ConnectionManager:
                                     dbname=self.DB_NAME, 
                                     user=self.DB_USER, 
                                     password=self.DB_PASS)
-        return self.conn
-
-# con = ConnectionManager()
-# con.getConnection()
-# print('connection successfull')        
+        return self.conn   
