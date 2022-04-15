@@ -3,7 +3,7 @@ from flask import *
 import psycopg2
 import psycopg2.extras
 import re
-from ConnectionManager import ConnectionManager
+from dbConnector import ConnectionManager
 from optimized import db_connection as dbc
 import os
 from werkzeug.utils import secure_filename
