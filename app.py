@@ -7,6 +7,7 @@ import re
 from postgres.ConnectionManager import ConnectionManager
 from optimized import db_connection as dbc
 import os
+import base64
 from werkzeug.utils import secure_filename
 
 
@@ -202,19 +203,22 @@ def render_colorizerPage():
         print(unique_id)
 
         # inserting the file into database 
-        
-        # color
-        # cache save color
-
         cursor = conn.cursor()
         cursor.execute('INSERT INTO imagedata (grayImage, rgbImage, fileName, userId, uniqueId) VALUES(%s,%s,%s,%s,%s)', 
                         (psycopg2.Binary(convertPic), psycopg2.Binary(convertPic), filename, session['id'], unique_id))
         conn.commit()
 
+        # removing the original file
         os.remove(filePath)
 
-        # remove color
-
+        # fetching the image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(unique_id,))
+        imageData = cursor.fetchone()
+        print(imageData[1])
+        print(imageData)
+        convertBinarytoFile(imageData[1],os.path.join(app.config['UPLOAD_FOLDER'],imageData[3]))
+        convertBinarytoFile(imageData[2],os.path.join(app.config['UPLOAD_FOLDER'],'c_' + imageData[3]))
         return render_template('colorize.html', data=unique_id)
     return redirect(url_for('dashboard'))
 
