@@ -9,6 +9,15 @@ from optimized import db_connection as dbc
 import os
 import base64
 from werkzeug.utils import secure_filename
+import keras
+from skimage.io import imsave
+import time 
+from utils.Colorizer import Colorizer 
+
+
+model_path = "static\model\Colorizer_ResidualAutoEncoder_100_500.h5"
+newModel = keras.models.load_model(model_path)
+
 
 
 app = Flask(__name__)
@@ -192,7 +201,7 @@ def render_colorizerPage():
         filename = secure_filename(file.filename)
         filePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filePath)
-        convertPic = convertToBinary(filePath)
+        convertGrayPic = convertToBinary(filePath)
 
         print(f'name of file : {filename}')
 
@@ -202,14 +211,39 @@ def render_colorizerPage():
         unique_id = secrets.token_hex(16)
         print(unique_id)
 
+        # colorzing the gray image
+
+        targetFilePath = os.path.join(app.config['UPLOAD_FOLDER'],'c_' + filename)
+
+        start = time.time()
+
+        rgbResult = Colorizer().predictRGB(newModel, filePath, 256, 256)
+
+        # ending the timer
+        end = time.time()
+
+        temp = end-start
+        print(f'Total Time in Seconds : {temp} sec')
+        hours = temp//3600
+        temp = temp - 3600*hours
+        minutes = temp//60
+        seconds = temp - 60*minutes
+        print('Total Time Taken : ')
+        print('HH:MM:SS => %d:%d:%d' %(hours,minutes,seconds))
+
+
+        imsave(targetFilePath, rgbResult)
+        convertRGBPic = convertToBinary(targetFilePath)
+
         # inserting the file into database 
         cursor = conn.cursor()
         cursor.execute('INSERT INTO imagedata (grayImage, rgbImage, fileName, userId, uniqueId) VALUES(%s,%s,%s,%s,%s)', 
-                        (psycopg2.Binary(convertPic), psycopg2.Binary(convertPic), filename, session['id'], unique_id))
+                        (psycopg2.Binary(convertGrayPic), psycopg2.Binary(convertRGBPic), filename, session['id'], unique_id))
         conn.commit()
 
         # removing the original file
         os.remove(filePath)
+        os.remove(targetFilePath)
 
         # fetching the image data from the DB
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
