@@ -43,8 +43,8 @@
 <body class=" sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark">
         <span class="h2" style="color:rgb(255,255,255); margin: auto 2rem;font-family: 'Rubik Moonrocks', cursive;" id="logo">
-               ColorIt 
-            </span>
+            ColorIt
+        </span>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" style="margin: auto 0.5rem;" href="#"><i class="fas fa-bars"></i></button>
         <div class="form-inline ml-auto" style="color:whitesmoke; margin-right:0.3rem;">
             <i class="fas fa-user fa-fw" style="margin-right: 0.5rem;"></i>
@@ -63,7 +63,7 @@
                             Home
                         </a>
 
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#change-pass-modal">
+                        <a class="nav-link" href="#" data-toggle="modal" data-target="#change-password-modal">
                             <div class="sb-nav-link-icon"><i class="fas fa-pen"></i></div>
                             Change the Password
                         </a>
@@ -92,24 +92,31 @@
                     <button name="browse-button" id="browse-button">Browse File</button>
                 </div>
                 <div class="drag-area" id="image-container" style="display: none;">
-                    <!--img alt="image" style="width:300px;height:300px;display: none;" id="input-img"-->
+                    <!-- im -->
                 </div>
                 <div class="card" style="margin-top: 10px;display: none;" id="upload-form-wrapper">
                     <div class="card-body">
                         <div>
-                            <form action="/colorize" method="post" enctype="multipart/form-data">
+                            <form enctype="multipart/form-data">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div id="filename-container">
+
+                                        <div class="display:flex;flex-direction: column;" id="filename-container">
                                             <b><span id="filename">This contain filename</span></b>
+                                            <br>
+                                            <small>Size : <b><span id="file-size">This contain filesize</span></b></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6" style="display: inline-flex;align-items: flex-end;justify-content: flex-end;">
+
                                         <input type="file" id="input-file" name="img_filename" hidden>
                                         <button type="submit" id="grey-submit" class="btn btn-primary" style="margin-right: 10px;">
                                             <i class="fa-solid fa-upload"></i>
                                         </button>
-                                        <input type="reset" hidden id="reset-hidden">
+                                        <button class="btn btn-dark" id="loading-tag" type="button" disabled style="display: None;">
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            Coloring...
+                                        </button>
                                         <button type="reset" id="grey-reset" class="btn btn-danger">
                                             <i class="fa-solid fa-remove"></i>
                                         </button>
@@ -121,23 +128,99 @@
 
                     </div>
                 </div>
-                <!--/div-->
+
+
+                <div id="redirect-form">
+                    <form action="{{url_for('renderColorize')}}" method="post">
+                        <input type="text" name="image-id" id="image-id" hidden>
+                        <input type="submit" value="Submit" id="image-id-submit" hidden>
+                    </form>
+                </div>
+
             </main>
 
-            <div>
-                <!-- <a href="/dashboard2">Dashboard2</a> -->
-            </div>
-            <!--footer class="py-4 bg-light mt-auto">
-                    <div class="container-fluid">
-                        <div class="d-flex align-items-center justify-content-between small">
+            <!-- alert Modal -->
+            <div class="modal fade" id="alertModal" data-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="modal-title">Modal title</h6>
+                        </div>
+                        <div class="modal-body" id="modal-body">
+                            Modal MSG
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
                         </div>
                     </div>
-                </footer-->
+                </div>
+            </div>
+
+
+            <!-- Modal to change password of the user -->
+
+            <div class="modal fade" id="change-password-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Change the Password</h5>
+                            <button type="button" id="close-password-modal" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                        </div>
+                        <div class="modal-body">
+
+                            <form id="change-password-form">
+                                <div class="form-group">
+                                    <label class="h6" for="password">Current Password :</label>
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="old-password" name="old-password" placeholder="Enter your Current Password" required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="show-old-password">
+                                                <i class="fa-solid fa-eye-slash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="error-text" id="old-pass-error"></small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="h6" for="new-password">New Password :</label>
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="new-password" name="new-password" placeholder="Enter New Password" required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="show-new-password">
+                                                <i class="fa-solid fa-eye-slash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <small class="error-text" id="new-pass-error"></small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="h6" for="con-new-password">Confirm the New Password :</label>
+                                    <input type="password" class="form-control" id="con-new-password" name="con-new-password" placeholder="Confirm your New Password" required>
+                                    <small class="error-text" id="con-new-pass-error"></small>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="clear-form">Clear</button>
+                            <button type="button" class="btn btn-success" id="change-pasword-btn">Change</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 
 </body>
-<script src="static/js/side_navbar.js"></script>
-<script src="static/js/drag_drop.js"></script>
+<script type="module" src="static/js/side_navbar.js"></script>
+<script type="module" src="static/js/drag_drop.js"></script>
+<script type="module" src="static/js/change_password_script.js"></script>
 
 </html>

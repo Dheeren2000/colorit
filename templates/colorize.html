@@ -14,6 +14,15 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
+
+    <style>
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -23,28 +32,35 @@
                 <i class="fa-solid fa-angle-left"></i> Back</a>
         </header>
         <div class="alert alert-warning" role="alert">
-            {{data['filename']}}
+            {{data['imageFileName']}}
         </div>
         <div class="row align-items-md-stretch">
             <div class="col-md-6">
                 <div class="card">
                     <div class="text-center" style="padding: 20px;">
-                        <img src="{{data['ori_file']}}" alt="B-W Image" style="width: 256px; height: 256px;">
+                        <img src="{{data['grayImage']}}" alt="B-W Image" class="img-fluid">
                     </div>
                     <div class="hr"></div>
-                    <div class="card-body">
+                    <div class="alert-secondary p-2 card-footer">
                         <b><p class="card-text">GrayScale Image</p></b>
+                        <a href="/download/{{data['imageFileName']}}" class="btn btn-success">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card">
                     <div class="text-center" style="padding: 20px;">
-                        <img src="{{data['color_file']}}" alt="Colorized Image" style="width: 256px; height: 256px;">
+                        <img src="{{data['colorImage']}}" alt="Colorized Image" class="img-fluid">
+
                     </div>
                     <div class="hr"></div>
-                    <div class="card-body">
+                    <div class="card-footer alert-secondary p-2">
                         <b><p class="card-text">Colorized Image</p></b>
+                        <a href="/download/{{'c_' + data['imageFileName']}}" class="btn btn-success">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
                     </div>
                 </div>
             </div>

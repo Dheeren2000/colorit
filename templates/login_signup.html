@@ -1,61 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Sign-up</title>
-	<link rel="icon" href="{{url_for('static',filename='image,img1')}}" type="image/x-icon"/>
+    <link rel="icon" href="{{url_for('static',filename='image,img1')}}" type="image/x-icon" />
     <link rel="stylesheet" href="{{url_for('static',filename='css/style_login.css')}}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://unpkg.com/scrollreveal"></script>
 </head>
+
 <body>
 
-<div class="container" id="container">
-	<!--SIGN UP-->
-	<div class="form-container sign-up-container">
-		<form action="{{url_for('login')}}" method="post" autocomplete="off">
-			<h1>Create Account</h1>
-			<input type="text" name="Fname" id="Fname" placeholder="First Name" required />
-			<input type="text" name="Lname" id="Lname" placeholder="Last Name" required/>
-			<input type="email" name="user_email" id="user_email" placeholder="Email" required/>
-			<input type="password" name="password" id="password" placeholder="Password" required/>
-			<input type="password" name="confirm_pass" id="confirm_pass" placeholder="Confirm Password" required/>
-			<button>Sign Up</button>
-		</form>
-	</div>
-	<!--SIGN IN (Login)-->
-	<div class="form-container sign-in-container">
-		<form action="{{url_for('login')}}" method="post" autocomplete="off">
-			<h1>Sign in</h1>
-			<span>or use your account</span>
-			<input type="email" name="Email_login" id="Email_login" placeholder="Email" required/>
-			<input type="password" name="password_login" id="password_login" placeholder="Password" required/>
-			<a href="{{url_for('forgot_password')}}">Forgot your password?</a>
-			<button>Sign In</button>
-			
-		</form>
-	</div>
-	<div class="overlay-container">
-		<div class="overlay">
-			<div class="overlay-panel overlay-left">
-				<h1>Welcome Back!</h1>
-				<p>To keep connected with us please login with your personal info</p>
-				<button class="ghost" id="signIn">Sign In</button>
-			</div>
-			<div class="overlay-panel overlay-right">
-				<h1>Hello, Friend!</h1>
-				<p>Enter your personal details and start journey with us</p>
-				<div class="msg">{{msg}}</div>
-				<button class="ghost" id="signUp">Sign Up</button>
-			</div>
-		</div>
-	</div>
-</div>
+    <div class="container" id="container">
+        <!--SIGN UP-->
+        <div class="form-container sign-up-container">
+            <form action="{{url_for('login')}}" method="post" autocomplete="off">
+                <h1>Create Account</h1>
+                <input type="text" name="Fname" id="Fname" placeholder="First Name" required />
+                <input type="text" name="Lname" id="Lname" placeholder="Last Name" required/>
+                <input type="email" name="user_email" id="user_email" placeholder="Email" required/>
+                <input type="password" name="password" id="password" placeholder="Password" required/>
+                <input type="password" name="confirm_pass" id="confirm_pass" placeholder="Confirm Password" required/>
+                <button>Sign Up</button>
+            </form>
+        </div>
+        <!--SIGN IN (Login)-->
+        <div class="form-container sign-in-container">
+            <form action="{{url_for('login')}}" method="post" autocomplete="off">
+                <h1>Sign in</h1>
+                <span>or use your account</span>
+                <input type="email" name="Email_login" id="Email_login" placeholder="Email" required/>
+                <input type="password" name="password_login" id="password_login" placeholder="Password" required/>
+                <a href="{{url_for('forgot_password')}}">Forgot your password?</a>
+                <button>Sign In</button>
+
+            </form>
+        </div>
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Enter your personal details and start journey with us</p>
+                    <div class="msg">{{msg}}</div>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
-<script>
+    <script>
         const signUpButton = document.getElementById('signUp');
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('container');
@@ -67,6 +69,7 @@
         signInButton.addEventListener('click', () => {
             container.classList.remove("right-panel-active");
         });
-</script>
+    </script>
 </body>
+
 </html>

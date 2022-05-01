@@ -1,5 +1,4 @@
 from flask import *
-#from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 import secrets
 import psycopg2.extras
@@ -18,7 +17,7 @@ from random import *
 
 
 model_path = "static\model\Colorizer_ResidualAutoEncoder_100_500.h5"
-newModel = keras.models.load_model(model_path)
+colorizerModel = keras.models.load_model(model_path)
 
 
 
@@ -47,14 +46,6 @@ mail = Mail(app)
 otp=randint(000000,999999)
 #mail systems ends****************************************
 
-
-# DB_HOST = "localhost"
-# DB_PORT = "5432"
-# DB_NAME = "db_colorization"
-# DB_USER = "postgres"
-# DB_PASS = "djmn@1234"
-
-# conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, dbname=DB_NAME, user=DB_USER, password=DB_PASS)
 
 # getting the postgress connection
 conn = ConnectionManager().getConnection()
@@ -148,20 +139,6 @@ def dashboard():
     if session['loggedin'] == True:
         return render_template('dashboard.html',firstname=firstname,lastname=lastname)
 
-@app.route('/dashboard2')
-def dashboard2():
-    # cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    # user_email = session['email']
-
-    # cursor.execute('select * from app_users where email=%s',(user_email,))
-    # user_data = cursor.fetchone()
-    # firstname = user_data['fname']
-    # lastname = user_data['lname']
-
-    return render_template('dashboard2.html')
-    #return render_template('dashboard.html',firstname=firstname,lastname=lastname)
-
-
 #**************************************************upload img code**************************************************
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
@@ -175,130 +152,189 @@ def convertBinarytoFile(binarydata,filename):
     with open(filename,'wb') as file:
         file.write(binarydata)
 
-
-# @app.route('/uploadImage', methods=['POST','GET'])
-# def uploadImage():
-#     return render_template('upload_imagePage.html')
-
-
-# @app.route('/uploadImage_success', methods=['POST','GET'])
-# def upload_Image_success():
-#     msg=''
-#     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-#     if 'file' not in request.files:
-#         msg = 'no file part'
-#         return redirect(request.url)
-#     file = request.files['file']
-#     if file.filename=='':
-#         msg = 'no image selected for uploading'
-#         return redirect(request.url)
-#     if file and allowed_file(file.filename):
-#         filename = secure_filename(file.filename)
-#         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#         msg = 'image successfully uploaded'
-#         convertPic = convertTobinary(filename)
-#         cursor.execute('Insert into Save_image (Image) values (%s)', (convertPic))
-#         conn.commit()
-#         msg = 'image successfully uploaded'
-#         return render_template('upload_imagePage.html', filename=filename, msg=msg)
-        
-#     else:
-#         return redirect(request.url)
-    
-# @app.route('/display')
-# def display_image(filename):
-    
-#     return redirect(url_for('static', filename='images/' + filename), code=301, filename=filename)
-
+# Todo : method to colorize the image and send the unique id to the user
 @app.route('/colorize', methods=['POST'])
-def render_colorizerPage():
-    
-    if request.method == 'POST' and 'img_filename' in request.files:
-        file = request.files['img_filename']
-        filename = secure_filename(file.filename)
-        filePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filePath)
-        convertGrayPic = convertToBinary(filePath)
+def colorizeImage():
 
-        print(f'name of file : {filename}')
+    if request.method == 'POST' and 'image-file' in request.files:
 
-        print('Session ID for the user : {}'.format(session['id']))
+        # getting the file out of the request
+        imageFile = request.files['image-file']
+        print(f'ImageFile Contents : {imageFile}')
 
-        # generating the unique id for the given tuple
-        unique_id = secrets.token_hex(16)
-        print(unique_id)
+        # saving the file in cache
+        imageFileName = secure_filename(imageFile.filename)
+        print(f'Name of the ImageFile : {imageFileName}')
+        grayFilePath = os.path.join(app.config['UPLOAD_FOLDER'], imageFileName)
+        print(f'Path to save imagefile : {grayFilePath}')
+        imageFile.save(grayFilePath)
 
-        # colorzing the gray image
+        # checking whether given file is grayscale or not 
+        # isGrayScale = ImageUtils.isGrayImage(grayFilePath)
+        isGrayScale = True
+        print(f'Is GrayScale Image : {isGrayScale}')
 
-        targetFilePath = os.path.join(app.config['UPLOAD_FOLDER'],'c_' + filename)
+        # if grayscale then returning the unvalid image response
+        res = None
+        if not isGrayScale:
+            res = {
+                'status' : -9999,
+                'uid' : None,
+                'message' : 'Not-GrayScale'
+            }
+            print(f'Removing the "{grayFilePath}" : Not-Grayscale')
+            os.remove(grayFilePath)
+        else:           # else colorizing the image
 
-        start = time.time()
+            # generating the unique token
+            unique_id = secrets.token_hex(16)
+            # file path for the colored image
+            colorFilePath = os.path.join(app.config['UPLOAD_FOLDER'],'c_' + imageFileName)
 
-        rgbResult = Colorizer().predictRGB(newModel, filePath, 256, 256)
+            # coloring the grayscale image
+            start = time.time()
+            rgbResult = Colorizer().predictRGB(model=colorizerModel, imgPath=grayFilePath)
+            end = time.time()
 
-        # ending the timer
-        end = time.time()
+            temp = end-start
+            print(f'Total Time in Seconds : {temp} sec')
+            hours = temp//3600
+            temp = temp - 3600*hours
+            minutes = temp//60
+            seconds = temp - 60*minutes
+            print('Total Time Taken : ')
+            print('HH:MM:SS => %d:%d:%d' %(hours, minutes, seconds))
 
-        temp = end-start
-        print(f'Total Time in Seconds : {temp} sec')
-        hours = temp//3600
-        temp = temp - 3600*hours
-        minutes = temp//60
-        seconds = temp - 60*minutes
-        print('Total Time Taken : ')
-        print('HH:MM:SS => %d:%d:%d' %(hours,minutes,seconds))
+            # saving the image
+            imsave(colorFilePath, rgbResult)
 
+            # converting the images into the binary files   
+            _grayBin = convertToBinary(grayFilePath)
+            _colorBin = convertToBinary(colorFilePath)
 
-        imsave(targetFilePath, rgbResult)
-        convertRGBPic = convertToBinary(targetFilePath)
-
-        # inserting the file into database 
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO imagedata (grayImage, rgbImage, fileName, userId, uniqueId) VALUES(%s,%s,%s,%s,%s)', 
-                        (psycopg2.Binary(convertGrayPic), psycopg2.Binary(convertRGBPic), filename, session['id'], unique_id))
-        conn.commit()
-
-        # removing the original file
-        os.remove(filePath)
-        os.remove(targetFilePath)
-
-        # fetching the image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(unique_id,))
-        imageData = cursor.fetchone()
-
-        print(imageData[1])
-        print(imageData)
-
-        imgFileName = imageData[3]
-
-        bw_filePath = os.path.join(app.config['UPLOAD_FOLDER'], imgFileName)
-        color_filePath = os.path.join(app.config['UPLOAD_FOLDER'],'c_' + imgFileName)
-
-        # retriving the image files
-        convertBinarytoFile(imageData[1], bw_filePath)
-        convertBinarytoFile(imageData[2], color_filePath)
+            # inserting the images in the db
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO imagedata (grayImage, rgbImage, fileName, userId, uniqueId) VALUES(%s,%s,%s,%s,%s)', 
+                            (psycopg2.Binary(_grayBin), psycopg2.Binary(_colorBin), imageFileName, session['id'], unique_id))
+            conn.commit()
 
 
-        fileDict = {
-            'filename' : imgFileName,
-            'ori_file' : bw_filePath, 
-            'color_file' : color_filePath
-        }
+            # removing the files from the cache 
+            if os.path.exists(grayFilePath):
+                os.remove(grayFilePath)
+            if os.path.exists(colorFilePath):
+                os.remove(colorFilePath)
+                    
+            res = {
+                'status' : 9999,
+                'uid' : unique_id,
+                'message' : 'GrayScale'
+            }
 
-        print(fileDict)
-
-        # redirecting to colorize page
-        return render_template('colorize.html', data = fileDict)
+        print(res)
+        return jsonify(res)
 
     return redirect(url_for('dashboard'))
 
+# Todo : method to display the grayscale and colorized image using the unique id on the colorize.html
+@app.route('/displayImage', methods=['POST'])
+def renderColorize():
 
+    if request.method == 'POST' and 'image-id' in request.form:
+        
+        # getting the image id to be displayed 
+        imageId = request.form['image-id']
+
+        # fetching the image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(imageId,))
+        imageData = cursor.fetchone()
+
+        # getting teh filename of the image
+        imageFileName = imageData[3]
+
+        # setting up the filepaths
+        grayFilePath = os.path.join(app.config['UPLOAD_FOLDER'], imageFileName)
+        colorFilePath = os.path.join(app.config['UPLOAD_FOLDER'], 'c_' + imageFileName)
+
+        # retriving the image files
+        convertBinarytoFile(imageData[1], grayFilePath)
+        convertBinarytoFile(imageData[2], colorFilePath)
+
+        results = {
+            'imageFileName' : imageFileName,
+            'grayImage' : grayFilePath, 
+            'colorImage' : colorFilePath
+        }
+
+        return render_template('colorize.html', data=results)
+    
+    else:
+        print('This is exe')
+        return redirect(url_for('dashboard'))
+
+
+@app.route('/download/<fileName>')
+def downloadImageFile(fileName):
+    filePath = os.path.join(app.config['UPLOAD_FOLDER'], fileName)
+    return send_file(filePath, as_attachment=True)
+
+# to return to the dashboard from the colorize page
 @app.route('/ret_dashboard')
 def redirect_Dashboard():
     for fileName in os.listdir(app.config['UPLOAD_FOLDER']):
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'],fileName))
     return redirect(url_for('dashboard'))
+
+# to change the passoword of the given user
+@app.route('/resetPassword', methods=['POST'])
+def resetPassword():
+    
+    if request.method == 'POST' and 'current-password' in request.form and 'new-password' in request.form:
+        
+        oldPassword = request.form['current-password']
+        newPassword = request.form['new-password']
+
+        # checking if the old password is same as in the db
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('select * from app_users where email=%s',(session['email'],))
+        accountInfo = cursor.fetchone()
+
+        print(f'Account Info : {accountInfo}')
+        if accountInfo is not None:
+            res = {
+                'current-match' : True,
+                'new-match' : False,
+                'success' : False
+            }
+
+            password = accountInfo['password']
+            if password != oldPassword:
+                res['current-match'] = False
+                return jsonify(res)
+            
+            if password == newPassword:
+                res['new-match'] = True
+                return jsonify(res)
+            else:
+
+                try:
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                    cursor.execute('UPDATE app_users SET password=%s WHERE email=%s',
+                                    (newPassword, session['email']));
+                    conn.commit();
+                    res['success'] = True
+                    print('Updated Password')
+                except:
+                    res['success'] = False
+
+
+                return jsonify(res)            
+    else:
+        print('Not Executing')
+        return redirect(url_for('dashboard'))
+
+
 
 @app.route('/forgot_password', methods=['POST', 'GET'])
 def forgot_password():

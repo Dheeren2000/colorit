@@ -23,6 +23,7 @@ class Colorizer:
                 Tuple (L channel and Predicted AB channels)
 
         '''
+
         image = ImageUtils.getRGBData(imgPath, img_w, img_h)
 
         labImage = ImageUtils.getLABData(image)
@@ -62,19 +63,6 @@ class Colorizer:
 
 
         result = result.astype('float32')
-        # print(result)
-        # print(result.shape)
-
-        # converting the colorspace into rgb using opencv
-        # rgb = cv2.cvtColor(result, cv2.COLOR_LAB2RGB)
-
-        # converting the colorspace into rgb using skimage
-        # rgb = lab2rgb(result)
-
-        # chaning down
-        
-        # result = tf.convert_to_tensor(result)
-        # print(result)
 
         rgb = lab2rgb(result)
         # ########
@@ -83,19 +71,27 @@ class Colorizer:
         return np.array(rgb)
 
     # To predict the RGB Images from given images
-    def predictRGB(self, model, img, img_w, img_h):
+    def predictRGB(self, model, imgPath):
         
         '''
         Description : 
                 Method to predict the RGB Image 
         Input : 
                 model => Pretrained NN model to predict the A` and B` channels
-		        img => RGB image (w * h * 3)
+		imgPath => path to image
         Returns : 
                 np.array (RGB Image - w * h* 3)
         '''
-        _l, predAB = self.__predictLAB(model, img, img_w, img_h) 
-        # print(_l.shape)
-        # print(predAB.shape)
+        # getting the image original height and width
+
+        image = imread(imgPath)
+        ori_h, ori_w = image.shape[0], image.shape[1]
+
+        img_w, img_h = 256, 256
+        _l, predAB = self.__predictLAB(model, imgPath, img_w, img_h) 
         rgbImage = self.__imgPostProcess(_l, predAB)
+
+        # resizing the regbImage result to original shape
+        rgbImage = resize(rgbImage, (ori_h, ori_w))
+
         return np.array(rgbImage)
