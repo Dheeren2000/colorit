@@ -13,6 +13,8 @@ import keras
 from skimage.io import imsave
 import time 
 from utils.Colorizer import Colorizer 
+from flask_mail import *
+from random import *
 
 
 model_path = "static\model\Colorizer_ResidualAutoEncoder_100_500.h5"
@@ -29,6 +31,21 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
+
+
+#mailing system ****************
+mail = Mail(app)
+
+app.config["MAIL_SERVER"]='smtp.gmail.com'
+app.config["MAIL_PORT"]=465
+app.config["MAIL_USERNAME"]= 'test.aiml00@gmail.com'
+app.config["MAIL_PASSWORD"]= 'test.aiml@1234'
+app.config["MAIL_USE_TLS"]=False 
+app.config["MAIL_USE_SSL"]=True
+app.config["MAIL_DEFAULT_SENDER"]= 'test.aiml00@gmail.com'
+mail = Mail(app)
+otp=randint(000000,999999)
+#mail systems ends****************************************
 
 
 # DB_HOST = "localhost"
@@ -282,6 +299,62 @@ def redirect_Dashboard():
     for fileName in os.listdir(app.config['UPLOAD_FOLDER']):
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'],fileName))
     return redirect(url_for('dashboard'))
+
+@app.route('/forgot_password', methods=['POST', 'GET'])
+def forgot_password():
+    error = ""
+    message = ""
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if request.method == 'POST' and 'enterEmail' in request.form:
+        mail1 = request.form['enterEmail']
+
+        cursor.execute('select * from app_users where email=%s', (mail1,))
+        account = cursor.fetchone()
+
+        if not account:
+            error = 'Account not found!'
+        else:
+            msg = Message(subject='OTP Verification from ColorIt.io to reset Password', sender='test.aiml00@gmail.com', recipients=[mail1])
+            msg.body=str(otp)
+            mail.send(msg) 
+            message = 'Account Found and mail has been send to the registered email address'
+            session['loggedin'] = True
+            session['email1'] = request.form['enterEmail']
+            return redirect(url_for('verifyotp'))     
+    return render_template('forgotpassword.html', error=error,message=message)
+
+@app.route('/verifyotp', methods=['POST', 'GET'])
+def verifyotp():
+    error = ""
+    message = ""
+    if request.method == 'POST' and 'otp' in request.form:
+        verifyotp = request.form['otp']
+        if otp == int(verifyotp):
+            return redirect(url_for('changepassword'))
+        else:
+            return "<h3>please try again</h3>"
+    return render_template('verifyOtp.html')
+
+@app.route('/changepassword', methods=['POST', 'GET'])
+def changepassword():
+    error = ""
+    message = ""
+    emailId = session['email1']
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if request.method == 'POST' and 'enterpass' in request.form and 'verifyenterpass' in request.form:
+        changepass = request.form['enterpass']
+        verifyChangepass = request.form['verifyenterpass']
+        if changepass == verifyChangepass:
+            cursor.execute('UPDATE app_users SET password = %s WHERE email = %s', (changepass,emailId))
+            conn.commit()
+            message = 'password updated successfully'
+            return redirect(url_for('login'))
+        else:
+            error = 'password doesnot match'
+            return redirect('changepassword')
+    return render_template('changepassword.html')
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
