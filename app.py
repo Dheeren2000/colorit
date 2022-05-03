@@ -1,3 +1,7 @@
+import base64
+from email.headerregistry import HeaderRegistry
+import io
+from PIL import Image
 from flask import *
 import psycopg2
 import secrets
@@ -6,7 +10,6 @@ import re
 from postgres.ConnectionManager import ConnectionManager
 from optimized import db_connection as dbc
 import os
-import base64
 from werkzeug.utils import secure_filename
 import keras
 from skimage.io import imsave
@@ -18,7 +21,6 @@ from random import *
 
 model_path = "static\model\Colorizer_ResidualAutoEncoder_100_500.h5"
 colorizerModel = keras.models.load_model(model_path)
-
 
 
 app = Flask(__name__)
@@ -235,8 +237,9 @@ def colorizeImage():
         return jsonify(res)
 
     return redirect(url_for('dashboard'))
+    
 
-# Todo : method to display the grayscale and colorized image using the unique id on the colorize.html
+# Todo : method to get the uid on colorize page 
 @app.route('/displayImage', methods=['POST'])
 def renderColorize():
 
@@ -245,26 +248,8 @@ def renderColorize():
         # getting the image id to be displayed 
         imageId = request.form['image-id']
 
-        # fetching the image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(imageId,))
-        imageData = cursor.fetchone()
-
-        # getting teh filename of the image
-        imageFileName = imageData[3]
-
-        # setting up the filepaths
-        grayFilePath = os.path.join(app.config['UPLOAD_FOLDER'], imageFileName)
-        colorFilePath = os.path.join(app.config['UPLOAD_FOLDER'], 'c_' + imageFileName)
-
-        # retriving the image files
-        convertBinarytoFile(imageData[1], grayFilePath)
-        convertBinarytoFile(imageData[2], colorFilePath)
-
         results = {
-            'imageFileName' : imageFileName,
-            'grayImage' : grayFilePath, 
-            'colorImage' : colorFilePath
+            'image-id' : imageId
         }
 
         return render_template('colorize.html', data=results)
@@ -274,10 +259,88 @@ def renderColorize():
         return redirect(url_for('dashboard'))
 
 
-@app.route('/download/<fileName>')
-def downloadImageFile(fileName):
-    filePath = os.path.join(app.config['UPLOAD_FOLDER'], fileName)
-    return send_file(filePath, as_attachment=True)
+# Todo : method to get the uid on colorize page 
+@app.route('/getImageData', methods=['POST'])
+def returnImageData():
+
+    if request.method == 'POST' and 'image-id' in request.form:
+        
+        # getting the image id to be displayed 
+        imageId = request.form['image-id']
+
+        print(imageId)
+
+        # fetching the image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(imageId,))
+        imageData = cursor.fetchone()
+
+        print(imageData)
+
+        # getting all the data out of imageData
+        grayBinData = imageData[1]
+        colorBinData = imageData[2]
+        imageFileName = imageData[3]    # file name
+        dataTime = imageData[5]
+
+        # reading the bytes of grayscale image
+        grayBytes = io.BytesIO(grayBinData)
+        grayBytes.seek(0)
+        gray_base64 = base64.b64encode(grayBytes.read())
+
+        # reading the bytes of color image
+        colorBytes = io.BytesIO(colorBinData)
+        colorBytes.seek(0)
+        color_base64 = base64.b64encode(colorBytes.read())
+
+        results = {
+            'image-id': imageId,
+            'file-name': imageFileName,
+            'gray-image': str(gray_base64),
+            'color-image': str(color_base64),
+            'timeStamp': dataTime
+        }
+
+        return jsonify(results)
+
+    else:
+        print('load Images not exe')
+        return redirect(url_for('dashboard'))
+
+# To download the images
+@app.route('/download', methods=['POST'])
+def downloadImageFile():
+
+    if request.method == 'POST' and 'image-id' in request.form and 'mode' in request.form:
+
+        # getting the image id and mode to fetch the record 
+        imageId = request.form['image-id']
+        imageMode = request.form['mode']
+
+        # fetching the image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(imageId,))
+        imageData = cursor.fetchone()
+
+        print(imageData)
+
+        # getting all the data out of imageData
+        grayBinData = imageData[1]      # gray image binary
+        colorBinData = imageData[2]     # color image binary
+        imageFileName = imageData[3]    # file name
+
+        if imageMode == 'g':            # sending the grayscale image
+            grayBytes = io.BytesIO(grayBinData)
+            grayBytes.seek(0)
+            return send_file(grayBytes, as_attachment=True, download_name=imageFileName)
+
+        else:                           # sending the color image
+            colorBytes = io.BytesIO(colorBinData)
+            colorBytes.seek(0)
+            return send_file(colorBytes, as_attachment=True, download_name=imageFileName)
+        
+    return redirect(url_for('redirect_Dashboard'))
+
 
 # to return to the dashboard from the colorize page
 @app.route('/ret_dashboard')

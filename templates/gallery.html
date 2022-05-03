@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+
+    <!-- cdns -->
+    <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap" rel="stylesheet">
+
+    <!-- css links -->
+    <link rel="stylesheet" href="/static/css/gallery.css">
+
+</head>
+
+<body>
+
+    <nav class="navbar fixed-top navbar-dark bg-dark p-2 justify-content-between">
+
+        <span class="h2" style="color:rgb(255,255,255); margin: auto 2rem;font-family: 'Rubik Moonrocks', cursive;" id="logo">
+            ColorIt
+        </span>
+
+        <div class="d-inline-flex">
+            <button class="btn btn-primary rounded-circle" style="margin-right: 10px;" data-bs-toggle="tooltip" title="Home">
+                <i class="fa-solid fa-home"></i>
+            </button>
+
+            <input class="form-control" type="search" placeholder="Search Image" aria-label="Search" data-bs-toggle="tooltip" title="Search Image by Name">
+        </div>
+
+
+    </nav>
+
+
+    <div class="container" style="margin-top: 75px;">
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="cardView m-4 m-4">
+
+                    <div class="cardBody">
+                        <div class="image-container">
+                            <img src="/static/images/test16.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+                        <div class="image-container">
+                            <img src="/static/images/test16.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+
+                    </div>
+
+                    <div class="cardFooter">
+                        <div class="details">
+                            <b><span>Image Name</span></b>
+                        </div>
+                        <div class="options">
+                            <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                                <i class="fa-solid fa-expand"></i>
+                            </button>
+                            <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardView m-4">
+
+                    <div class="cardBody">
+                        <div class="image-container">
+                            <img src="/static/images/test32.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+                        <div class="image-container">
+                            <img src="/static/images/test32.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+
+                    </div>
+
+                    <div class="cardFooter">
+                        <div class="details">
+                            <b><span>Image Name</span></b>
+                        </div>
+                        <div class="options">
+                            <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                                <i class="fa-solid fa-expand"></i>
+                            </button>
+                            <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="cardView m-4">
+
+                    <div class="cardBody">
+                        <div class="image-container">
+                            <img src="/static/images/img1.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+                        <div class="image-container">
+                            <img src="/static/images/img1.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+
+                    </div>
+
+                    <div class="cardFooter">
+                        <div class="details">
+                            <b><span>Image Name</span></b>
+                        </div>
+                        <div class="options">
+                            <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                                <i class="fa-solid fa-expand"></i>
+                            </button>
+                            <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cardView m-4">
+
+                    <div class="cardBody">
+                        <div class="image-container">
+                            <img src="/static/images/test17.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+                        <div class="image-container">
+                            <img src="/static/images/test17.jpg" class="gallery-img" alt="" srcset="">
+                        </div>
+
+                    </div>
+
+                    <div class="cardFooter">
+                        <div class="details">
+                            <b><span>Image Name</span></b>
+                        </div>
+                        <div class="options">
+                            <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                                <i class="fa-solid fa-expand"></i>
+                            </button>
+                            <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex p-2 m-2 align-items-center justify-content-around ">
+
+            <div class="options">
+                <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Previous Page">
+                    <i class="fa-solid fa-angles-left"></i>
+                </button>
+                <input type="number" class="page-number-input" name="page-number" id="page-number" min="1"> <span style="font-size: 30px; font-weight: 100;">/</span>
+                <input type="text" class="page-number-input" name="total-page-number" id="total-page-number" value="4" disabled>
+                <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Next Page">
+                    <i class="fa-solid fa-angles-right"></i>
+                </button>
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+
+
+</body>
+<script src="/static/js/gallery.js"></script>
+
+</html>
