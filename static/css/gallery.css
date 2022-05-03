@@ -4,6 +4,37 @@
     box-sizing: border-box;
 }
 
+.row-images {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    box-orient: horizontal;
+    flex-direction: row;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    box-align: center;
+    align-items: center;
+}
+
+.column-images {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    flex: 1 1 auto;
+    flex-direction: row;
+    padding: 10px;
+    margin: 10px;
+}
+
 .cardView {
     width: fit-content;
     height: fit-content;
@@ -38,6 +69,23 @@
     width: 300px !important;
     height: 200px !important;
 }
+
+
+/* @media only screen and (max-width: 1400px) {
+    .gallery-img {
+        object-fit: fill !important;
+        width: 280px !important;
+        height: 200px !important;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .gallery-img {
+        object-fit: fill !important;
+        width: 220px !important;
+        height: 200px !important;
+    }
+} */
 
 .cardFooter {
     display: inline-flex;
@@ -96,4 +144,24 @@ body::-webkit-scrollbar-thumb {
     width: 100%;
     justify-content: center;
     justify-items: flex-end;
+}
+
+.image-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap
+}
+
+@media only screen and (max-width: 768px) {
+    .gallery-img {
+        object-fit: fill !important;
+        width: 220px !important;
+        height: 200px !important;
+    }
+    .image-view {
+        object-fit: fill !important;
+        width: 400px !important;
+        height: 250px !important;
+    }
 }
