@@ -219,9 +219,9 @@ upload_btn.addEventListener('click', (event) => {
         fetch('/colorize', { method: 'POST', body: formData })
             .then(res => {
                 if (debug) {
-                    // console.log('response : ', res.status);
-                    return res.json();
+                    console.log('response : ', res.status);
                 }
+                return res.json();
             })
             .then(result => {
                 console.log(result.body);

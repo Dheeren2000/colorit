@@ -349,6 +349,94 @@ def redirect_Dashboard():
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'],fileName))
     return redirect(url_for('dashboard'))
 
+# ---------------------------------------------------------
+
+# to redirect to the gallery
+@app.route('/gallery')
+def redirect_gallery():
+
+    # checking if there is session set or not
+    if 'email' in session:
+        return render_template('gallery.html')
+
+    return redirect(url_for('dashboard'))
+
+
+# route to return the user images in batches of 4
+@app.route('/getUserImages', methods=['POST'])
+def returnUserImages():
+
+    if request.method == 'POST' and 'page-no' in request.form:
+        # getting the page no out of the form
+        pageNo = request.form['page-no']
+    
+        # setting up the limit 
+        limit = 4
+        offset = (int(pageNo) - 1) * limit
+
+        # fetching the count of image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT COUNT(*) FROM imagedata WHERE userid = %s ',(session['id'],))
+        imageDataCount = cursor.fetchone()[0]
+
+        pageCount = imageDataCount // limit
+        if imageDataCount % 2 != 0:
+             pageCount += 1
+        
+        print(f'ImageCount : {imageDataCount} | PageCount : {pageCount}')
+
+        # fetching the image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute("SELECT fileName, grayImage, rgbImage, uniqueId, to_char(datetime, 'DD Mon YYYY, HH:MI AM') FROM ImageData WHERE userid = %s LIMIT %s OFFSET %s",
+        (session['id'], limit, offset))
+        records = cursor.fetchall()
+
+        imageData = list()
+        for data in records:
+            
+            # gettting the content out of it
+            fileName = data[0]
+            grayBinData = data[1]
+            colorBinData = data[2]
+            uid = data[3]
+            udate = data[4].split(', ')[0]
+            utime = data[4].split(', ')[1]
+
+            # reading the bytes of grayscale image
+            grayBytes = io.BytesIO(grayBinData)
+            grayBytes.seek(0)
+            gray_base64 = base64.b64encode(grayBytes.read())
+
+            # reading the bytes of color image
+            colorBytes = io.BytesIO(colorBinData)
+            colorBytes.seek(0)
+            color_base64 = base64.b64encode(colorBytes.read())
+
+            result = {
+                'uid' : uid,
+                'grayImg' : str(gray_base64),
+                'colorImg' : str(color_base64),
+                'filename' : fileName,
+                'upload-date' : udate,
+                'upload-time' : utime,
+            }
+
+            imageData.append(result)
+
+        res = {
+            'fileCount' : imageDataCount,
+            'pageCount' : pageCount,
+            'data': imageData
+        }
+
+        return jsonify(res)
+
+    
+    return redirect(url_for('dashboard')) 
+
+
+
+# ---------------------------------------------------------
 # to change the passoword of the given user
 @app.route('/resetPassword', methods=['POST'])
 def resetPassword():
@@ -385,7 +473,7 @@ def resetPassword():
                     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                     cursor.execute('UPDATE app_users SET password=%s WHERE email=%s',
                                     (newPassword, session['email']));
-                    conn.commit();
+                    conn.commit()
                     res['success'] = True
                     print('Updated Password')
                 except:

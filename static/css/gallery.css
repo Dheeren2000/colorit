@@ -43,6 +43,10 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25);
 }
 
+.cardView.hide {
+    display: none;
+}
+
 .cardBody {
     display: flex;
 }
@@ -153,6 +157,14 @@ body::-webkit-scrollbar-thumb {
     flex-wrap: wrap
 }
 
+.details {
+    display: block;
+}
+
+.details small {
+    color: rgb(133, 129, 129);
+}
+
 @media only screen and (max-width: 768px) {
     .gallery-img {
         object-fit: fill !important;
@@ -164,4 +176,20 @@ body::-webkit-scrollbar-thumb {
         width: 400px !important;
         height: 250px !important;
     }
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
 }

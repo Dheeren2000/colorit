@@ -27,16 +27,15 @@
 
     <nav class="navbar fixed-top navbar-dark bg-dark p-2 justify-content-between">
 
-        <span class="h2" style="color:rgb(255,255,255); margin: auto 2rem;font-family: 'Rubik Moonrocks', cursive;" id="logo">
+        <a href="{{url_for('dashboard')}}" class="h2" style="color:rgb(255,255,255); margin: auto 2rem;font-family: 'Rubik Moonrocks', cursive; text-decoration: none;" id="logo">
             ColorIt
-        </span>
+        </a>
 
         <div class="d-inline-flex">
-            <button class="btn btn-primary rounded-circle" style="margin-right: 10px;" data-bs-toggle="tooltip" title="Home">
+            <a href="{{url_for('dashboard')}}" class="btn btn-primary rounded-circle" style="margin-right: 10px; text-decoration: none;" data-bs-toggle="tooltip" title="Home">
                 <i class="fa-solid fa-home"></i>
-            </button>
-
-            <input class="form-control" type="search" placeholder="Search Image" aria-label="Search" data-bs-toggle="tooltip" title="Search Image by Name">
+            </a>
+            <input class="form-control" type="search" id="search-bar" placeholder="Search Image" aria-label="Search" data-bs-toggle="tooltip" title="Search Image by Name" disabled>
         </div>
 
 
@@ -46,105 +45,127 @@
     <div class="container" style="margin-top: 75px;">
 
         <div class="image-grid">
-            <div class="cardView m-4">
+
+            <div class="cardView m-4 hide">
 
                 <div class="cardBody">
                     <div class="image-container">
-                        <img src="/static/images/test17.jpg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img" alt="GrayScale Image">
                     </div>
                     <div class="image-container">
-                        <img src="/static/images/test17.jpg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img" alt="Color Image">
                     </div>
 
                 </div>
 
                 <div class="cardFooter">
                     <div class="details">
-                        <b><span>Image Name</span></b>
+                        <b><span name="image-name">Image Name</span></b>
+                        <br>
+                        <small> Uploaded : </small>
+                        <small><span name="date">DD MM YYYY</span></small>
+                        <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                        <input type="text" name="id" value="a" hidden disabled>
+                        <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
-                        <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                        <button class="btn btn-danger rounded-circle deleteBtn" name="delete-img-btn" data-bs-toggle="tooltip" title="Delete Images">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="cardView m-4">
+
+            <div class="cardView m-4 hide">
 
                 <div class="cardBody">
                     <div class="image-container">
-                        <img src="/static/images/img1.jpg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img " alt="GrayScale Image">
                     </div>
-                    <div class="image-container">
-                        <img src="/static/images/img1.jpg" class="gallery-img" alt="" srcset="">
+                    <div class="image-container ">
+                        <img src="" class="gallery-img" alt="Color Image">
                     </div>
 
                 </div>
 
                 <div class="cardFooter">
                     <div class="details">
-                        <b><span>Image Name</span></b>
+                        <b><span name="image-name">Image Name</span></b>
+                        <br>
+                        <small> Uploaded : </small>
+                        <small><span name="date">DD MM YYYY</span></small>
+                        <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                        <input type="text" name="id" value="b" hidden disabled>
+                        <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
-                        <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                        <button class="btn btn-danger rounded-circle deleteBtn" name="delete-img-btn" data-bs-toggle="tooltip" title="Delete Images">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="cardView m-4">
+            <div class="cardView m-4 hide">
 
                 <div class="cardBody">
                     <div class="image-container">
-                        <img src="/static/images/test18.jpeg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img" alt="GrayScale Image">
                     </div>
                     <div class="image-container">
-                        <img src="/static/images/test18.jpeg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img" alt="Color Image">
                     </div>
 
                 </div>
 
                 <div class="cardFooter">
                     <div class="details">
-                        <b><span>Image Name</span></b>
+                        <b><span name="image-name">Image Name</span></b>
+                        <br>
+                        <small> Uploaded : </small>
+                        <small><span name="date">DD MM YYYY</span></small>
+                        <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                        <input type="text" name="id" value="c" hidden disabled>
+                        <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
-                        <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                        <button class="btn btn-danger rounded-circle deleteBtn" name="delete-img-btn" data-bs-toggle="tooltip" title="Delete Images">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="cardView m-4">
+            <div class="cardView m-4 hide">
 
                 <div class="cardBody">
                     <div class="image-container">
-                        <img src="/static/images/test32.jpg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img" alt="GrayScale Image">
                     </div>
                     <div class="image-container">
-                        <img src="/static/images/test32.jpg" class="gallery-img" alt="" srcset="">
+                        <img src="" class="gallery-img" alt="Color Image">
                     </div>
 
                 </div>
 
                 <div class="cardFooter">
                     <div class="details">
-                        <b><span>Image Name</span></b>
+                        <b><span name="image-name">Image Name</span></b>
+                        <br>
+                        <small> Uploaded : </small>
+                        <small><span name="date">DD MM YYYY</span></small>
+                        <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Show Images">
+                        <input type="text" name="id" value="d" hidden disabled>
+                        <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
-                        <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Delete Images">
+                        <button class="btn btn-danger rounded-circle deleteBtn" name="delete-img-btn" data-bs-toggle="tooltip" title="Delete Images">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -152,23 +173,21 @@
             </div>
         </div>
 
-        <div class="d-flex p-2 m-2 align-items-center justify-content-around ">
+    </div>
 
-            <div class="options">
-                <button class="btn btn-secondary rounded-circle" data-bs-toggle="tooltip" title="Previous Page">
-                    <i class="fa-solid fa-angles-left"></i>
-                </button>
-                <input type="number" class="page-number-input" name="page-number" id="page-number" min="1"> <span style="font-size: 30px; font-weight: 100;">/</span>
-                <input type="text" class="page-number-input" name="total-page-number" id="total-page-number" value="4" disabled>
-                <button class="btn btn-danger rounded-circle" data-bs-toggle="tooltip" title="Next Page">
-                    <i class="fa-solid fa-angles-right"></i>
-                </button>
-            </div>
+    <div class="d-flex p-2 m-2 align-items-center justify-content-around">
 
+        <div class="options noselect">
+            <button class="btn btn-outline-dark rounded-circle" data-bs-toggle="tooltip" title="Previous Page" id="previous-btn">
+                <i class="fa-solid fa-angles-left"></i>
+            </button>
+            <input type="number" class="page-number-input noselect" name="page-number" id="page-number" min="1" value="1"> <span style="font-size: 30px; font-weight: 100;">/</span>
+            <input type="text" class="page-number-input noselect" name="total-page-number" id="total-page-number" value="4" disabled>
+
+            <button class="btn btn-outline-dark rounded-circle" id="next-btn" data-bs-toggle="tooltip" title="Next Page">
+                <i class="fa-solid fa-angles-right"></i>
+            </button>
         </div>
-
-
-
 
     </div>
 
