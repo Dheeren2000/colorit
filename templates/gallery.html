@@ -46,6 +46,12 @@
 
         <div class="image-grid">
 
+            <div class="no-img-container alert alert-dark hide" id="no-img-container">
+                No Images to Display
+
+            </div>
+
+
             <div class="cardView m-4 hide">
 
                 <div class="cardBody">
@@ -177,7 +183,7 @@
 
     <div class="d-flex p-2 m-2 align-items-center justify-content-around">
 
-        <div class="options noselect">
+        <div class="options noselect" id="pageNavBar">
             <button class="btn btn-outline-dark rounded-circle" data-bs-toggle="tooltip" title="Previous Page" id="previous-btn">
                 <i class="fa-solid fa-angles-left"></i>
             </button>
@@ -189,6 +195,26 @@
             </button>
         </div>
 
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="delete-confirm-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Delete the Images</h5>
+
+                </div>
+                <div class="modal-body">
+                    Are you sure, you want to delete the images?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="close-delete-modal-btn" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <button type="button" id="confirm-delete-btn" class="btn btn-danger">Yes</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 

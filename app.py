@@ -380,14 +380,14 @@ def returnUserImages():
         imageDataCount = cursor.fetchone()[0]
 
         pageCount = imageDataCount // limit
-        if imageDataCount % 2 != 0:
+        if imageDataCount % 4 != 0:
              pageCount += 1
         
         print(f'ImageCount : {imageDataCount} | PageCount : {pageCount}')
 
         # fetching the image data from the DB
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("SELECT fileName, grayImage, rgbImage, uniqueId, to_char(datetime, 'DD Mon YYYY, HH:MI AM') FROM ImageData WHERE userid = %s LIMIT %s OFFSET %s",
+        cursor.execute("SELECT fileName, grayImage, rgbImage, uniqueId, to_char(datetime, 'DD Mon YYYY, HH:MI AM') FROM ImageData WHERE userid = %s ORDER BY datetime DESC LIMIT %s OFFSET %s",
         (session['id'], limit, offset))
         records = cursor.fetchall()
 
@@ -435,6 +435,33 @@ def returnUserImages():
     return redirect(url_for('dashboard')) 
 
 
+# to delete the given image from the gallery
+@app.route('/deleteImages', methods=['POST'])
+def deleteImages():
+
+    if request.method == 'POST' and 'image-id' in request.form:
+
+        # getting the image-id 
+        imgId = request.form['image-id']
+
+        # deleting the record from the table
+        try:
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute('DELETE FROM ImageData WHERE uniqueId = %s', (imgId,))
+            conn.commit()
+        except:
+            return jsonify({
+                'success' : False
+            })
+
+
+        return jsonify({
+              'success' : True  
+            })
+
+    return redirect(url_for('dashboard'))
+
+
 
 # ---------------------------------------------------------
 # to change the passoword of the given user
@@ -472,7 +499,7 @@ def resetPassword():
                 try:
                     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                     cursor.execute('UPDATE app_users SET password=%s WHERE email=%s',
-                                    (newPassword, session['email']));
+                                    (newPassword, session['email']))
                     conn.commit()
                     res['success'] = True
                     print('Updated Password')

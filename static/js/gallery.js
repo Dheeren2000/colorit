@@ -9,8 +9,14 @@ const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
 });
 
+// getting no images area to dispaly 
+const noImgView = document.getElementById('no-img-container');
+
 // gettting the searchbar 
 const searchBar = document.getElementById('search-bar');
+
+// getting the page navigation bar
+const pageNavBar = document.getElementById('pageNavBar');
 
 // getting the btns
 const previousBtn = document.getElementById('previous-btn');
@@ -39,9 +45,21 @@ var sendGetImagesRequest = (currentPageNo) => {
             let pageCount = results['pageCount'];
             let imageData = results['data'];
 
+            if (currentPageNo > pageCount && currentPageNo != 1)
+                sendGetImagesRequest(currentPageNo - 1);
+
             renderImageGrid(cardViewList, imageData);
 
+            console.log(fileCount)
+            if (fileCount <= 0) {
+                noImgView.classList.remove('hide');
+                pageNavBar.classList.add('hide');
+            } else {
+                noImgView.classList.add('hide');
+                pageNavBar.classList.remove('hide');
+            }
             renderPageNavigationBar(currentPageNo, pageCount);
+
         });
 }
 
@@ -208,7 +226,31 @@ $(document).ready(() => {
 
             // getting the image id within the parent
             imageId = btn.parentElement.getElementsByTagName('input')[0].value;
-            console.log(imageId);
+            $('#delete-confirm-modal').modal('show');
+
+            $('#confirm-delete-btn').click(() => {
+                console.log(imageId);
+
+                let fd = new FormData();
+                fd.append('image-id', imageId);
+
+                // sending the request to the server to delete the given image
+                fetch('/deleteImages', { method: 'POST', body: fd })
+                    .then(res => {
+                        return res.json();
+                    }).then(result => {
+                        console.log(result);
+
+                        if (result['success']) {
+                            $('#close-delete-modal-btn').click();
+                            let currentPageNum = parseInt(pageNo.value);
+                            sendGetImagesRequest(currentPageNum);
+                        } else {
+                            console.log('Error while deleting img');
+                        }
+
+                    });
+            })
         });
     });
 
