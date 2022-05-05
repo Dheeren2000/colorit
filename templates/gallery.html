@@ -35,7 +35,15 @@
             <a href="{{url_for('dashboard')}}" class="btn btn-primary rounded-circle" style="margin-right: 10px; text-decoration: none;" data-bs-toggle="tooltip" title="Home">
                 <i class="fa-solid fa-home"></i>
             </a>
-            <input class="form-control" type="search" id="search-bar" placeholder="Search Image" aria-label="Search" data-bs-toggle="tooltip" title="Search Image by Name" disabled>
+
+
+            <div class="input-group">
+                <input class="form-control" type="text" id="search-bar" placeholder="Search Image" aria-label="Search" data-bs-toggle="tooltip" title="Search Image by Name" disabled>
+                <button class="btn bg-transparent searchClear hide" id="searchClearBtn" style="margin-left: -40px; z-index: 100; color:rgb(162, 161, 161)">
+                  <i class="fa fa-times"></i>
+                </button>
+            </div>
+
         </div>
 
 

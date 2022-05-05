@@ -45,7 +45,8 @@
 
 .cardView.hide,
 .no-img-container.hide,
-.options.hide {
+.options.hide,
+.searchClear.hide {
     display: none;
 }
 

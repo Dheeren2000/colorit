@@ -1,8 +1,3 @@
-// convert base64 to image url
-const getImageURL = (byteString) => {
-    return 'data:image/jpeg;base64,' + byteString.split('\'')[1];
-}
-
 // to show the tooltips accross the page
 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -19,6 +14,7 @@ const searchBar = document.getElementById('search-bar');
 const pageNavBar = document.getElementById('pageNavBar');
 
 // getting the btns
+const searchClearBtn = document.getElementById('searchClearBtn');
 const previousBtn = document.getElementById('previous-btn');
 const nextBtn = document.getElementById('next-btn');
 const pageNo = document.getElementById('page-number');
@@ -28,10 +24,54 @@ const totalPageNo = document.getElementById('total-page-number');
 const deleteBtnList = document.querySelectorAll('.deleteBtn');
 const showBtnList = document.querySelectorAll('.showBtn');
 
+
+// convert base64 to image url
+const getImageURL = (byteString) => {
+    return 'data:image/jpeg;base64,' + byteString.split('\'')[1];
+}
+
+// function for debounce 
+const debounce = (func, timeout = 500) => {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
+
+searchClearBtn.addEventListener('click', () => {
+    searchBar.value = '';
+    sendGetImagesRequest(1, searchBar.value);
+    searchClearBtn.classList.add('hide');
+})
+
+// when the input in search bar changes
+searchBar.addEventListener('input', () => {
+    let searchValue = searchBar.value.trim();
+
+    if (searchValue == '') {
+        searchClearBtn.classList.add('hide');
+    } else {
+        searchClearBtn.classList.remove('hide');
+    }
+});
+
+// on keydown searchbar
+searchBar.addEventListener('keydown', debounce(function() {
+    let searchValue = searchBar.value.trim();
+
+    sendGetImagesRequest(1, searchValue);
+
+}));
+
 // function to send request to the server for images using page no
-var sendGetImagesRequest = (currentPageNo) => {
-    var fd = new FormData()
-    fd.append('page-no', currentPageNo)
+var sendGetImagesRequest = (currentPageNo, searchName = 'NA') => {
+    var fd = new FormData();
+    fd.append('page-no', currentPageNo);
+    if (searchName == '') {
+        searchName = 'NA';
+    }
+    fd.append('search-name', searchName);
 
     // sending request to the server to send the images
     fetch('/getUserImages', { method: 'POST', body: fd })
@@ -46,7 +86,7 @@ var sendGetImagesRequest = (currentPageNo) => {
             let imageData = results['data'];
 
             if (currentPageNo > pageCount && currentPageNo != 1)
-                sendGetImagesRequest(currentPageNo - 1);
+                sendGetImagesRequest(currentPageNo - 1, searchName);
 
             renderImageGrid(cardViewList, imageData);
 
@@ -177,7 +217,9 @@ $(document).ready(() => {
 
         renderPageNavigationBar(pageNum, totalPages);
 
-        sendGetImagesRequest(pageNum);
+        let searchValue = searchBar.value.trim();
+
+        sendGetImagesRequest(pageNum, searchValue);
 
     });
 
@@ -214,8 +256,7 @@ $(document).ready(() => {
 
     });
 
-
-    sendGetImagesRequest(1);
+    sendGetImagesRequest(1, searchBar.value.trim());
 
 
     // for each item in the deleteBtnList
@@ -244,7 +285,8 @@ $(document).ready(() => {
                         if (result['success']) {
                             $('#close-delete-modal-btn').click();
                             let currentPageNum = parseInt(pageNo.value);
-                            sendGetImagesRequest(currentPageNum);
+                            let searchValue = searchBar.value.trim();
+                            sendGetImagesRequest(currentPageNum, searchValue);
                         } else {
                             console.log('Error while deleting img');
                         }

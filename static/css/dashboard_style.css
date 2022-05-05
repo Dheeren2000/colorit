@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200&display=swap'); 
-*
-{
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200&display=swap');
+* {
     padding: 0;
     margin: 0;
     font-family: sans-serif;
@@ -10,368 +9,305 @@
     user-select: none;
 }
 
-body
-{
-    background:  linear-gradient(-30deg, #111222,#41607e ,#111223,#111222);  
+body {
+    /* background: linear-gradient(-30deg, #111222, #41607e, #111223, #111222); */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
 }
 
-body::before
-{
+body::before {
     content: '';
-    position: absolute; 
+    position: absolute;
     left: 15%;
     bottom: 2%;
     width: 80px;
     height: 80px;
-    background: rgba(255,255,255,.5); 
+    background: rgba(255, 255, 255, .5);
     animation: zigzag2 3s linear infinite;
 }
 
-@keyframes zigzag2
-{
-    0%,100%
-    {
+@keyframes zigzag2 {
+    0%,
+    100% {
         transform: translateX(50px);
-       
     }
-
-    50%
-    {
-        transform: translateX(100px) scale(.8); 
-        
+    50% {
+        transform: translateX(100px) scale(.8);
     }
 }
 
-body::after
-{
+body::after {
     content: '';
-    position: absolute; 
+    position: absolute;
     left: 92%;
     top: 12%;
     z-index: -1;
     width: 80px;
     height: 80px;
-    background: rgba(255,255,255,.5); 
+    background: rgba(255, 255, 255, .5);
     animation: zigzag 3s linear infinite;
 }
 
-@keyframes zigzag
-{
-    0%,100%
-    {
+@keyframes zigzag {
+    0%,
+    100% {
         transform: translateY(50px);
-       
     }
-
-    50%
-    {
-        transform: translateY(100px) scale(.8); 
-        
+    50% {
+        transform: translateY(100px) scale(.8);
     }
 }
 
-.container
-{
-    width: 90%; 
+.container {
+    width: 90%;
     height: 85vh;
-    background: rgba(255,255,255,.4);
+    background: rgba(255, 255, 255, .4);
     backdrop-filter: blur(5px);
 }
 
-.container .navbar
-{
+.container .navbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;  
+    align-items: center;
     padding: 8px 25px;
     margin-top: 1em;
 }
 
-.container .navbar .logo
-{
-    display: flex;  
+.container .navbar .logo {
+    display: flex;
     align-items: center;
 }
 
-.container .navbar .logo img
-{
+.container .navbar .logo img {
     animation: rotate 8s linear infinite;
 }
 
-@keyframes rotate
-{
-    from
-    {
+@keyframes rotate {
+    from {
         transform: rotate(-360deg);
     }
 }
 
-.container .navbar .logo .logoname
-{
+.container .navbar .logo .logoname {
     font-size: 18px;
     text-transform: uppercase;
     margin-left: .5em;
     color: rgb(255, 255, 255);
-    text-shadow: 1px 1px 1px rgba(16,16,16,.1),
-                     1px 2px 1px rgba(16,16,16,.2),
-                     1px 3px 1px rgba(16,16,16,.1),
-                     1px 4px 1px rgba(16,16,16,.2),
-                     1px 5px 1px rgba(16,16,16,.1),
-                     1px 6px 1px rgba(16,16,16,.2);
+    text-shadow: 1px 1px 1px rgba(16, 16, 16, .1), 1px 2px 1px rgba(16, 16, 16, .2), 1px 3px 1px rgba(16, 16, 16, .1), 1px 4px 1px rgba(16, 16, 16, .2), 1px 5px 1px rgba(16, 16, 16, .1), 1px 6px 1px rgba(16, 16, 16, .2);
 }
 
-.searchbox
-{
-    position: relative; 
+.searchbox {
+    position: relative;
 }
 
-.searchbox input
-{
-    padding: 8px 120px 8px 20px ;
+.searchbox input {
+    padding: 8px 120px 8px 20px;
     border: none;
     outline: none;
-    border-radius: 30px; 
+    border-radius: 30px;
     transition: .3s;
 }
 
-.searchbox input:focus
-{ 
-    padding: 8px 250px 8px 20px ;
+.searchbox input:focus {
+    padding: 8px 250px 8px 20px;
 }
 
-.searchbox .fa
-{
+.searchbox .fa {
     position: absolute;
     top: 10px;
     right: 10px;
 }
- 
 
-.container .navbar .navitem
-{
+.container .navbar .navitem {
     display: flex;
     justify-content: center;
     align-items: center;
-}   
+}
 
-.navitem .lang select
-{
+.navitem .lang select {
     padding: 6px 30px;
     border: none;
     outline: none;
-    border-radius: 6px; 
+    border-radius: 6px;
     position: relative;
     right: 4em;
 }
-    
 
-.navitem .icons
-{
+.navitem .icons {
     position: relative;
     right: 1em;
 }
 
-.navitem .icons ul li
-{
+.navitem .icons ul li {
     position: relative;
     display: inline-block;
     font-size: 16px;
     margin: 0 12px;
 }
 
-.navitem .icons ul li .fa
-{
+.navitem .icons ul li .fa {
     padding: 5px;
     color: #fff;
-    background: #000; 
-    border-radius: 50%; 
+    background: #000;
+    border-radius: 50%;
     transition: .3s;
 }
- 
 
-.navitem .icons ul li .fa:hover
-{
+.navitem .icons ul li .fa:hover {
     transform: scale(1.2) rotate(360deg);
     color: #33cc33;
     background: transparent
 }
 
-.navitem .account
-{
+.navitem .account {
     position: relative;
     display: flex;
     align-items: center;
 }
 
-.navitem .account .fa{
+.navitem .account .fa {
     height: 10px;
 }
-.navitem .account .name
-{
+
+.navitem .account .name {
     text-transform: capitalize;
     margin: 0 8px;
     font-weight: 700;
 }
 
-.navitem .account .username
-{
+.navitem .account .username {
     position: absolute;
     top: 18px;
     left: 32px;
-    font-size: 12px; 
-    color: #000;    
+    font-size: 12px;
+    color: #000;
 }
-    
 
-.container-body
-{
+.container-body {
     display: grid;
-    grid-template-columns: 18% auto; 
+    grid-template-columns: 18% auto;
 }
 
-.container-body .sidebar
-{  
+.container-body .sidebar {
     margin: 20px 0 20px 20px;
-    background: rgba(255,255,255,.6);
+    background: rgba(255, 255, 255, .6);
     border-radius: 14px;
     padding: 10px;
 }
 
-.container-body .sidebar ul li
-{
+.container-body .sidebar ul li {
     padding: 10px 10px;
-    margin: 10px 0;   
+    margin: 10px 0;
 }
 
-.container-body .sidebar ul li:hover
-{
+.container-body .sidebar ul li:hover {
     background: #00004d;
     color: #fff;
-    border-radius: 8px;  
+    border-radius: 8px;
 }
 
-.container-body .sidebar ul li a
-{
+.container-body .sidebar ul li a {
     color: #000;
     text-transform: capitalize;
     font-weight: bolder;
 }
 
-.container-body .sidebar ul li:hover a
-{
+.container-body .sidebar ul li:hover a {
     color: #fff;
 }
 
-.container-body .sidebar ul .dashboard
-{
+.container-body .sidebar ul .dashboard {
     background: #00004d;
     color: #fff;
     border-radius: 8px;
-    padding: 10px; 
+    padding: 10px;
 }
 
-.container-body .sidebar ul .dashboard a
-{
+.container-body .sidebar ul .dashboard a {
     color: #fff;
 }
 
-.container-body .sidebar ul li .fa
-{
-    font-size: 18px; 
+.container-body .sidebar ul li .fa {
+    font-size: 18px;
     padding: 0 5px;
 }
 
-.container-body .main-body .headtittle
-{   
+.container-body .main-body .headtittle {
     padding: 15px;
     margin: 20px;
-    margin-bottom: 0; 
+    margin-bottom: 0;
 }
 
-.container-body .main-body .headtittle span
-{
+.container-body .main-body .headtittle span {
     text-transform: capitalize;
     font-weight: 700;
     font-size: 16px;
 }
 
-.container-body .main-body .headtittle  h2
-{
-    font-size: 25px; 
-    font-weight: normal; 
+.container-body .main-body .headtittle h2 {
+    font-size: 25px;
+    font-weight: normal;
 }
 
-.container-body .main-body .cards
-{
+.container-body .main-body .cards {
     display: grid;
-    grid-template-rows:  180px 140px;
+    grid-template-rows: 180px 140px;
     grid-gap: 20px;
     padding: 20px;
 }
 
-.container-body .main-body .cards .row-1
-{
+.container-body .main-body .cards .row-1 {
     display: grid;
-    grid-template-columns:  30% 40% auto;
+    grid-template-columns: 30% 40% auto;
     grid-gap: 20px;
 }
 
-.container-body .main-body .cards .row-2
-{
+.container-body .main-body .cards .row-2 {
     display: grid;
-    grid-template-columns: repeat(4,auto);
+    grid-template-columns: repeat(4, auto);
     grid-gap: 20px;
 }
 
-.container-body .main-body .cards .row .col
-{
-    background: rgba(255,255,255,.5);
-    border-radius: 15px; 
+.container-body .main-body .cards .row .col {
+    background: rgba(255, 255, 255, .5);
+    border-radius: 15px;
 }
 
-.container-body .main-body .cards .row .col .cardtittle
-{
+.container-body .main-body .cards .row .col .cardtittle {
     font-size: 16px;
     padding: 20px;
     text-transform: capitalize;
 }
 
-.balance-card
-{
+.balance-card {
     position: relative;
-    
 }
 
-.balance-card h2
-{
+.balance-card h2 {
     font-size: 28px;
     padding: 10px 20px;
 }
- 
 
-.debit-card
-{
-     width: 100%;
-     height: 100%;
+.debit-card {
+    width: 100%;
+    height: 100%;
     position: relative;
     border-radius: 18px;
-    color: rgb(0, 0, 0); 
+    color: rgb(0, 0, 0);
 }
 
-
-.col .t-i, .p-i, .u-i, .i-s
-{
+.col .t-i,
+.p-i,
+.u-i,
+.i-s {
     font-size: 25px;
     font-weight: 700;
     padding: 20px 5px 20px 20px;
 }
-  
-.col .status
-{
+
+.col .status {
     font-size: 18px;
     padding: 6px 20px;
     border-radius: 6px;
@@ -381,52 +317,51 @@ body::after
 }
 
 
-
-
 /* CSS for button */
+
 .button-6 {
-  align-items: center;
-  background-color: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: .50rem;
-  box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
-  box-sizing: border-box;
-  color: rgba(0, 0, 0, 0.85);
-  cursor: pointer;
-  display: inline-flex;
-  font-family: system-ui,-apple-system,system-ui,"Helvetica Neue",Helvetica,Arial,sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  justify-content: center;
-  line-height: 1.25;
-  margin: 0;
-  min-height: 3rem;
-  padding: calc(.875rem - 1px) calc(1.5rem - 1px);
-  position: relative;
-  text-decoration: none;
-  transition: all 250ms;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: baseline;
-  width: auto;
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: .50rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: system-ui, -apple-system, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0;
+    min-height: 3rem;
+    padding: calc(.875rem - 1px) calc(1.5rem - 1px);
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
 }
 
 .button-6:hover,
 .button-6:focus {
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
-  color: rgba(0, 0, 0, 0.65);
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+    color: rgba(0, 0, 0, 0.65);
 }
 
 .button-6:hover {
-  transform: translateY(-1px);
+    transform: translateY(-1px);
 }
 
 .button-6:active {
-  background-color: #F0F0F1;
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
-  color: rgba(0, 0, 0, 0.65);
-  transform: translateY(0);
+    background-color: #F0F0F1;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+    color: rgba(0, 0, 0, 0.65);
+    transform: translateY(0);
 }

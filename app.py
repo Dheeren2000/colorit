@@ -136,11 +136,14 @@ def dashboard():
 
     cursor.execute('select * from app_users where email=%s',(user_email,))
     user_data = cursor.fetchone()
-    firstname = user_data['fname']
-    lastname = user_data['lname']
 
+    result = {
+        'firstname' : user_data['fname'],
+        'lastname' : user_data['lname']
+    }
+    
     if session['loggedin'] == True:
-        return render_template('dashboard.html',firstname=firstname,lastname=lastname)
+        return render_template('dashboard.html', data=result)
 
 #**************************************************upload img code**************************************************
 def allowed_file(filename):
@@ -371,30 +374,61 @@ def redirect_gallery():
 @app.route('/getUserImages', methods=['POST'])
 def returnUserImages():
 
-    if request.method == 'POST' and 'page-no' in request.form:
+    if request.method == 'POST' and 'page-no' in request.form and 'search-name' in request.form:
         # getting the page no out of the form
         pageNo = request.form['page-no']
-    
+        searchName = request.form['search-name']
+        # print(f'SearchName = {searchName}')
+
         # setting up the limit 
         limit = 4
         offset = (int(pageNo) - 1) * limit
 
+        commonCountQuery = "SELECT COUNT(*) FROM imagedata WHERE userid = %(uid)s"
+        commonImageDataQuery = "SELECT fileName, grayImage, rgbImage, uniqueId, to_char(datetime, 'DD Mon YYYY, HH:MI AM') FROM ImageData WHERE userid = %(uid)s"
+
+        if searchName != 'NA':
+            selectCountQuery = {
+                'query': commonCountQuery + " and LOWER(imagedata.fileName) LIKE %(searchValue)s",
+                'inputs': {'uid' : session['id'], 'searchValue': searchName.lower() + '%'}
+            }
+
+            selectImageDataQuery = {
+                'query':  commonImageDataQuery + " and LOWER(filename) LIKE %(searchValue)s ORDER BY datetime DESC LIMIT %(limits)s OFFSET %(offSet)s",
+                'inputs': {'uid': session['id'], 'searchValue': searchName.lower() + '%', 'limits': limit, 'offSet': offset}
+            }
+
+        else:
+
+            selectCountQuery = {
+                'query': commonCountQuery,
+                'inputs': {'uid' : session['id']}
+            }
+
+            selectImageDataQuery = {
+                'query':  commonImageDataQuery + " ORDER BY datetime DESC LIMIT %(limits)s OFFSET %(offSet)s",
+                'inputs': {'uid': session['id'], 'limits': limit, 'offSet': offset}
+            }
+
+        
         # fetching the count of image data from the DB
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT COUNT(*) FROM imagedata WHERE userid = %s ',(session['id'],))
+        cursor.execute(selectCountQuery['query'], selectCountQuery['inputs'])
         imageDataCount = cursor.fetchone()[0]
+
+        # print('!NA :', imageDataCount)
+
+        # fetching the image data from the DB
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(selectImageDataQuery['query'], selectImageDataQuery['inputs'])
+        records = cursor.fetchall()
+
 
         pageCount = imageDataCount // limit
         if imageDataCount % 4 != 0:
              pageCount += 1
         
-        print(f'ImageCount : {imageDataCount} | PageCount : {pageCount}')
-
-        # fetching the image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("SELECT fileName, grayImage, rgbImage, uniqueId, to_char(datetime, 'DD Mon YYYY, HH:MI AM') FROM ImageData WHERE userid = %s ORDER BY datetime DESC LIMIT %s OFFSET %s",
-        (session['id'], limit, offset))
-        records = cursor.fetchall()
+        # print(f'ImageCount : {imageDataCount} | PageCount : {pageCount}')
 
         imageData = list()
         for data in records:
