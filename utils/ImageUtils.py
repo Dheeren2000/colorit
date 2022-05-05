@@ -112,5 +112,5 @@ class ImageUtils:
             if (b==g).all() and (b==r).all(): 
                 return True
 
-            return False
+        return False
 

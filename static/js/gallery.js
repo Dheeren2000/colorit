@@ -50,7 +50,7 @@ var sendGetImagesRequest = (currentPageNo) => {
 
             renderImageGrid(cardViewList, imageData);
 
-            console.log(fileCount)
+            // console.log(fileCount)
             if (fileCount <= 0) {
                 noImgView.classList.remove('hide');
                 pageNavBar.classList.add('hide');
@@ -260,10 +260,13 @@ $(document).ready(() => {
 
         // if the show btn is clicked
         btn.addEventListener('click', (event) => {
-
             // getting the image id within the parent
             imageId = btn.parentElement.getElementsByTagName('input')[0].value;
-            console.log(imageId);
+
+            // console.log(imageId);
+            $('#image-id').val(imageId);
+            $('#showImgBtn').click();
+
         });
     });
 

@@ -73,7 +73,7 @@
                         <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <input type="text" name="id" value="a" hidden disabled>
+                        <input type="text" name="id" value="" hidden disabled>
                         <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
@@ -105,7 +105,7 @@
                         <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <input type="text" name="id" value="b" hidden disabled>
+                        <input type="text" name="id" value="" hidden disabled>
                         <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
@@ -136,7 +136,7 @@
                         <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <input type="text" name="id" value="c" hidden disabled>
+                        <input type="text" name="id" value="" hidden disabled>
                         <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
@@ -167,7 +167,7 @@
                         <small><span name="time">HH:MM AM</span></small>
                     </div>
                     <div class="options">
-                        <input type="text" name="id" value="d" hidden disabled>
+                        <input type="text" name="id" value="" hidden disabled>
                         <button class="btn btn-secondary rounded-circle showBtn" data-bs-toggle="tooltip" title="Show Images">
                             <i class="fa-solid fa-expand"></i>
                         </button>
@@ -216,6 +216,12 @@
             </div>
         </div>
     </div>
+
+
+    <form action="{{url_for('renderColorize')}}" method="POST">
+        <input type="text" name="image-id" id="image-id" value="" hidden>
+        <input type="submit" value="Show" id="showImgBtn" hidden>
+    </form>
 
 
 </body>

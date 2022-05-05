@@ -1,6 +1,7 @@
 import base64
 from email.headerregistry import HeaderRegistry
 import io
+from subprocess import CREATE_NEW_CONSOLE
 from PIL import Image
 from flask import *
 import psycopg2
@@ -243,13 +244,17 @@ def colorizeImage():
 @app.route('/displayImage', methods=['POST'])
 def renderColorize():
 
+    print('image-id' in request.form)
     if request.method == 'POST' and 'image-id' in request.form:
         
         # getting the image id to be displayed 
         imageId = request.form['image-id']
 
+        preRoute = str(request.referrer).split('/')[-1]
+        print('pre-route :', preRoute)
         results = {
-            'image-id' : imageId
+            'image-id' : imageId,
+            'pre-route' : preRoute
         }
 
         return render_template('colorize.html', data=results)
