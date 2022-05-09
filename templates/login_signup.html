@@ -17,7 +17,7 @@
     <div class="container" id="container">
         <!--SIGN UP-->
         <div class="form-container sign-up-container">
-            <form action="{{url_for('login')}}" method="post" autocomplete="off">
+            <form action="{{url_for('userRegistration')}}" method="post" autocomplete="off">
                 <h1>Create Account</h1>
                 <input type="text" name="Fname" id="Fname" placeholder="First Name" required />
                 <input type="text" name="Lname" id="Lname" placeholder="Last Name" required/>
@@ -29,7 +29,7 @@
         </div>
         <!--SIGN IN (Login)-->
         <div class="form-container sign-in-container">
-            <form action="{{url_for('login')}}" method="post" autocomplete="off">
+            <form action="{{url_for('userLogin')}}" method="post" autocomplete="off">
                 <h1>Sign in</h1>
                 <span>or use your account</span>
                 <input type="email" name="Email_login" id="Email_login" placeholder="Email" required/>

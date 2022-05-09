@@ -1,23 +1,29 @@
 import base64
-from email.headerregistry import HeaderRegistry
 import io
 from subprocess import CREATE_NEW_CONSOLE
+from unittest import result
 from PIL import Image
 from flask import *
 import psycopg2
 import secrets
 import psycopg2.extras
 import re
+
+from pyparsing import Opt
+from models.ImageData import ImageData
+from models.User import User
 from postgres.ConnectionManager import ConnectionManager
-from optimized import db_connection as dbc
 import os
 from werkzeug.utils import secure_filename
 import keras
 from skimage.io import imsave
-import time 
+import time
+from services.Services import Services 
 from utils.Colorizer import Colorizer 
 from flask_mail import *
 from random import *
+
+from utils.OtpGenerator import OtpGenerator
 
 
 model_path = "static\model\Colorizer_ResidualAutoEncoder_100_500.h5"
@@ -46,38 +52,63 @@ app.config["MAIL_USE_TLS"]=False
 app.config["MAIL_USE_SSL"]=True
 app.config["MAIL_DEFAULT_SENDER"]= 'test.aiml00@gmail.com'
 mail = Mail(app)
-otp=randint(000000,999999)
+
 #mail systems ends****************************************
-
-
-# getting the postgress connection
-conn = ConnectionManager().getConnection()
-
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/login' , methods=['POST', 'GET'])
-def login():
 
-    #*******************************************for user registration ********************************
+# function to redirect to login-signup page
+@app.route('/login-signup', methods=['GET', 'POST'])
+def redirect_login_signup():
+    return render_template('login_signup.html')
+
+# function to login the user 
+@app.route('/login', methods=['POST'])
+def userLogin():
+
     msg = ''
-    msg1 = ''
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if request.method == 'POST' and 'Email_login' in request.form and 'password_login' in request.form:
+
+        # getting the email and password for login
+        email_login = request.form['Email_login']
+        password_login = request.form['password_login']
+
+        account = Services.loginService(email_login, password_login)
+
+        print(account)
+
+        if account:
+            session['loggedin'] = True
+            session['id'] = account.id
+            session['email'] = account.email
+            session['first-name'] = account.firstName
+            session['last-name'] = account.lastName
+
+            return redirect(url_for('dashboard'))
+
+        else:
+            msg = 'Incorrect username / password !'
+    return render_template('login_signup.html',  msg=msg)
+
+# function to register user 
+@app.route('/register', methods=['POST'])
+def userRegistration():
     if request.method == 'POST' and 'Fname' in request.form and 'Lname' in request.form and 'user_email' in request.form and 'password' in request.form and 'confirm_pass' in request.form:
+
+        # getting the data from the requst
         firstname = request.form['Fname']
         lastname = request.form['Lname']
         emailid = request.form['user_email']
         password = request.form['password']
         confirm_password = request.form['confirm_pass']
         
-        cursor.execute('select * from app_users where email=%s',(emailid,))
-        account = cursor.fetchone()
-        print(account)
+        account = Services.isUserExits(emailid)
 
-        if account:
+        if account is not None:
             msg = 'Account already exists !'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', emailid):
             msg = 'Invalid email address !'
@@ -89,57 +120,43 @@ def login():
             msg = 'Please fill out the form !'
         else:
             if password == confirm_password:
-                cursor.execute('INSERT INTO app_users (fname,lname,email,password) VALUES (%s, %s, %s, %s)', (firstname, lastname, emailid, password, ))
-                conn.commit()
-                msg = 'You have successfully registered !'
+                
+                result = Services.registerService(User(firstname, lastname, emailid, password))
+
+                if result:
+                    msg = 'You have successfully registered !'
+                else:
+                    msg = 'Registration Failed, unable to register'
             else:
                 msg = 'Password and confirm password doesnot match!'
     elif request.method == 'POST':
         msg = 'Please fill out the form !'
 
-#****************************************User Login*********************************************************************
-    if request.method == 'POST' and 'Email_login' in request.form and 'password_login' in request.form:
-        email_login = request.form['Email_login']
-        password_login = request.form['password_login']
-
-        cursor.execute('select * from app_users where email=%s and password=%s',(email_login,password_login,))
-        account1 = cursor.fetchone()
-        print(account1)
-
-        if account1:
-            session['loggedin'] = True
-            session['id'] = account1['id']
-            session['email'] = account1['email']
-            msg1 = 'Logged in successfully !'
-            return redirect(url_for('dashboard'))
-        else:
-            msg = 'Incorrect username / password !'
-            
+    return render_template('login_signup.html',  msg=msg)
 
 
-    return render_template('login_signup.html', msg=msg)
 
 @app.route("/logout", methods=["POST", "GET"])
 def logout():
+
     if "email" in session:
         session.pop('loggedin', None)
         session.pop('id', None)
         session.pop("email", None)
+        session.pop('first-name', None)
+        session.pop("last-name", None)
+        
         return render_template("index.html")
     else:
         return render_template('index.html')
 
 @app.route('/dashboard')
 def dashboard():
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    
     user_email = session['email']
-
-    cursor.execute('select * from app_users where email=%s',(user_email,))
-    user_data = cursor.fetchone()
-
     result = {
-        'firstname' : user_data['fname'],
-        'lastname' : user_data['lname']
+        'firstname' : session['first-name'],
+        'lastname' : session['last-name']
     }
     
     if session['loggedin'] == True:
@@ -219,10 +236,14 @@ def colorizeImage():
             _colorBin = convertToBinary(colorFilePath)
 
             # inserting the images in the db
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO imagedata (grayImage, rgbImage, fileName, userId, uniqueId) VALUES(%s,%s,%s,%s,%s)', 
-                            (psycopg2.Binary(_grayBin), psycopg2.Binary(_colorBin), imageFileName, session['id'], unique_id))
-            conn.commit()
+
+            user = Services.isUserExits(session['email'])
+            imageData = ImageData(fileName=imageFileName, grayImage=_grayBin, rgbImage=_colorBin, uniqueId=unique_id)
+
+            result = Services.insertImage(user, imageData)
+
+            if result:
+                print("ImageData inserted successfully")
 
 
             # removing the files from the cache 
@@ -276,20 +297,18 @@ def returnImageData():
         # getting the image id to be displayed 
         imageId = request.form['image-id']
 
-        print(imageId)
+        print('Image ID :', imageId)
 
-        # fetching the image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(imageId,))
-        imageData = cursor.fetchone()
+        imageData = Services.getImageDataByUniqueId(imageId)
 
-        print(imageData)
+        if imageData is None:
+            return redirect(url_for('dashboard')) 
 
         # getting all the data out of imageData
-        grayBinData = imageData[1]
-        colorBinData = imageData[2]
-        imageFileName = imageData[3]    # file name
-        dataTime = imageData[5]
+        grayBinData = imageData.grayImage
+        colorBinData = imageData.rgbImage
+        imageFileName = imageData.fileName    # file name
+        datetime = imageData.datetime
 
         # reading the bytes of grayscale image
         grayBytes = io.BytesIO(grayBinData)
@@ -306,7 +325,7 @@ def returnImageData():
             'file-name': imageFileName,
             'gray-image': str(gray_base64),
             'color-image': str(color_base64),
-            'timeStamp': dataTime
+            'timeStamp': datetime
         }
 
         return jsonify(results)
@@ -325,17 +344,12 @@ def downloadImageFile():
         imageId = request.form['image-id']
         imageMode = request.form['mode']
 
-        # fetching the image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM imagedata WHERE uniqueId = %s',(imageId,))
-        imageData = cursor.fetchone()
-
-        print(imageData)
+        imageData = Services.getImageDataByUniqueId(imageId)
 
         # getting all the data out of imageData
-        grayBinData = imageData[1]      # gray image binary
-        colorBinData = imageData[2]     # color image binary
-        imageFileName = imageData[3]    # file name
+        grayBinData = imageData.grayImage     # gray image binary
+        colorBinData = imageData.rgbImage     # color image binary
+        imageFileName = imageData.fileName    # file name
 
         if imageMode == 'g':            # sending the grayscale image
             grayBytes = io.BytesIO(grayBinData)
@@ -384,45 +398,7 @@ def returnUserImages():
         limit = 4
         offset = (int(pageNo) - 1) * limit
 
-        commonCountQuery = "SELECT COUNT(*) FROM imagedata WHERE userid = %(uid)s"
-        commonImageDataQuery = "SELECT fileName, grayImage, rgbImage, uniqueId, to_char(datetime, 'DD Mon YYYY, HH:MI AM') FROM ImageData WHERE userid = %(uid)s"
-
-        if searchName != 'NA':
-            selectCountQuery = {
-                'query': commonCountQuery + " and LOWER(imagedata.fileName) LIKE %(searchValue)s",
-                'inputs': {'uid' : session['id'], 'searchValue': searchName.lower() + '%'}
-            }
-
-            selectImageDataQuery = {
-                'query':  commonImageDataQuery + " and LOWER(filename) LIKE %(searchValue)s ORDER BY datetime DESC LIMIT %(limits)s OFFSET %(offSet)s",
-                'inputs': {'uid': session['id'], 'searchValue': searchName.lower() + '%', 'limits': limit, 'offSet': offset}
-            }
-
-        else:
-
-            selectCountQuery = {
-                'query': commonCountQuery,
-                'inputs': {'uid' : session['id']}
-            }
-
-            selectImageDataQuery = {
-                'query':  commonImageDataQuery + " ORDER BY datetime DESC LIMIT %(limits)s OFFSET %(offSet)s",
-                'inputs': {'uid': session['id'], 'limits': limit, 'offSet': offset}
-            }
-
-        
-        # fetching the count of image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute(selectCountQuery['query'], selectCountQuery['inputs'])
-        imageDataCount = cursor.fetchone()[0]
-
-        # print('!NA :', imageDataCount)
-
-        # fetching the image data from the DB
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute(selectImageDataQuery['query'], selectImageDataQuery['inputs'])
-        records = cursor.fetchall()
-
+        imageDataCount, records = Services.getUserImages(searchName, session['id'], limit, offset)
 
         pageCount = imageDataCount // limit
         if imageDataCount % 4 != 0:
@@ -484,20 +460,19 @@ def deleteImages():
         imgId = request.form['image-id']
 
         # deleting the record from the table
-        try:
-            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cursor.execute('DELETE FROM ImageData WHERE uniqueId = %s', (imgId,))
-            conn.commit()
-        except:
+
+        result = Services.deleteImages(imgId)
+
+        if result:
             return jsonify({
-                'success' : False
-            })
-
-
-        return jsonify({
               'success' : True  
             })
-
+            
+        else:
+             return jsonify({
+                'success' : False
+            })
+            
     return redirect(url_for('dashboard'))
 
 
@@ -513,9 +488,7 @@ def resetPassword():
         newPassword = request.form['new-password']
 
         # checking if the old password is same as in the db
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('select * from app_users where email=%s',(session['email'],))
-        accountInfo = cursor.fetchone()
+        accountInfo = Services.isUserExits(session['email'])
 
         print(f'Account Info : {accountInfo}')
         if accountInfo is not None:
@@ -525,7 +498,7 @@ def resetPassword():
                 'success' : False
             }
 
-            password = accountInfo['password']
+            password = accountInfo.password
             if password != oldPassword:
                 res['current-match'] = False
                 return jsonify(res)
@@ -535,14 +508,10 @@ def resetPassword():
                 return jsonify(res)
             else:
 
-                try:
-                    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                    cursor.execute('UPDATE app_users SET password=%s WHERE email=%s',
-                                    (newPassword, session['email']))
-                    conn.commit()
+                if Services.editPassword(session['email'], newPassword):    
                     res['success'] = True
                     print('Updated Password')
-                except:
+                else:
                     res['success'] = False
 
 
@@ -551,60 +520,91 @@ def resetPassword():
         print('Not Executing')
         return redirect(url_for('dashboard'))
 
+# forget password -----------------------------------------------------------------------------
 
-
-@app.route('/forgot_password', methods=['POST', 'GET'])
+@app.route('/forgot_password', methods=['POST','GET'])
 def forgot_password():
     error = ""
     message = ""
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
     if request.method == 'POST' and 'enterEmail' in request.form:
         mail1 = request.form['enterEmail']
 
-        cursor.execute('select * from app_users where email=%s', (mail1,))
-        account = cursor.fetchone()
+        account = Services.isUserExits(mail1)
 
         if not account:
             error = 'Account not found!'
         else:
+            
+            otp = OtpGenerator.getRandomOtp()
+                
             msg = Message(subject='OTP Verification from ColorIt.io to reset Password', sender='test.aiml00@gmail.com', recipients=[mail1])
-            msg.body=str(otp)
+            msg.body= "OTP : " + otp
             mail.send(msg) 
             message = 'Account Found and mail has been send to the registered email address'
             session['loggedin'] = True
             session['email1'] = request.form['enterEmail']
+            session['otp'] = otp
             return redirect(url_for('verifyotp'))     
-    return render_template('forgotpassword.html', error=error,message=message)
+    return render_template('forgotpassword.html', error=error, message=message)
 
 @app.route('/verifyotp', methods=['POST', 'GET'])
 def verifyotp():
     error = ""
     message = ""
+
+    if 'otp' not in session:
+        return render_template('forgotpassword.html', error=error, message=message)
+
+    print('is otp in session : ', 'otp' in session)
+
+    print(session['otp'])
+
     if request.method == 'POST' and 'otp' in request.form:
         verifyotp = request.form['otp']
-        if otp == int(verifyotp):
-            return redirect(url_for('changepassword'))
+        print('OTP : ', type(verifyotp))
+        print('session OTP : ', type(session['otp']))
+        if verifyotp == session['otp']:
+            session.pop('otp', None)
+            return redirect(url_for('changepassword')) 
         else:
-            return "<h3>please try again</h3>"
+            message = "Entered wrong otp, please try again"
+            return render_template('verifyOtp.html', message=message)
+
     return render_template('verifyOtp.html')
 
 @app.route('/changepassword', methods=['POST', 'GET'])
 def changepassword():
-    error = ""
     message = ""
+
+    if 'email1' not in session:
+        return redirect(url_for('redirect_login_signup'))
+
     emailId = session['email1']
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if request.method == 'POST' and 'enterpass' in request.form and 'verifyenterpass' in request.form:
         changepass = request.form['enterpass']
         verifyChangepass = request.form['verifyenterpass']
         if changepass == verifyChangepass:
-            cursor.execute('UPDATE app_users SET password = %s WHERE email = %s', (changepass,emailId))
-            conn.commit()
-            message = 'password updated successfully'
-            return redirect(url_for('login'))
+            
+            result = Services.editPassword(emailId, changepass)
+
+            if result:
+                message = 'Password updated successfully'
+            else:
+                message = 'Error unable to update password'
+            
+            print(message)
+
+            session.pop('loggedin', None) 
+            session.pop('email1', None) 
+
+            return render_template('login_signup.html',  msg=message)
         else:
-            error = 'password doesnot match'
-            return redirect('changepassword')
+            message = 'Password does not match'
+        
+            return render_template('changepassword.html', message=message)
+
+    
     return render_template('changepassword.html')
 
 
