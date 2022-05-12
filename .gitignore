@@ -7,3 +7,4 @@ __pycache__/
 postgres/*.py
 static/model/
 static/cache/*
+utils/confidential/*

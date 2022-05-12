@@ -1,18 +1,12 @@
 import base64
 import io
 from subprocess import CREATE_NEW_CONSOLE
-from unittest import result
-from PIL import Image
 from flask import *
-import psycopg2
 import secrets
-import psycopg2.extras
 import re
 
-from pyparsing import Opt
 from models.ImageData import ImageData
 from models.User import User
-from postgres.ConnectionManager import ConnectionManager
 import os
 from werkzeug.utils import secure_filename
 import keras
@@ -22,11 +16,13 @@ from services.Services import Services
 from utils.Colorizer import Colorizer 
 from flask_mail import *
 from random import *
+from utils.ImageUtils import ImageUtils
 
 from utils.OtpGenerator import OtpGenerator
+from utils.Security import Security
 
 
-model_path = "static\model\Colorizer_ResidualAutoEncoder_100_500.h5"
+model_path = "static\model\Colorizer_ResidualAutoEncoder_1200_500.h5"
 colorizerModel = keras.models.load_model(model_path)
 
 
@@ -116,6 +112,8 @@ def userRegistration():
             msg = 'Name should not contain numbers'
         elif not re.match(r'[A-za-z]+' ,lastname):
             msg = 'Name should not contain numbers'
+        elif not re.match(r'^([A-Za-z0-9_\.@\$!]{8,20})$', password):
+            msg = 'Password should be alphanumeric and atleast contain 8 characters along with special characters.'
         elif not password or not emailid:
             msg = 'Please fill out the form !'
         else:
@@ -133,7 +131,6 @@ def userRegistration():
         msg = 'Please fill out the form !'
 
     return render_template('login_signup.html',  msg=msg)
-
 
 
 @app.route("/logout", methods=["POST", "GET"])
@@ -193,8 +190,8 @@ def colorizeImage():
         imageFile.save(grayFilePath)
 
         # checking whether given file is grayscale or not 
-        # isGrayScale = ImageUtils.isGrayImage(grayFilePath)
-        isGrayScale = True
+        isGrayScale = ImageUtils.isGrayImage(grayFilePath)
+        # isGrayScale = True
         print(f'Is GrayScale Image : {isGrayScale}')
 
         # if grayscale then returning the unvalid image response
@@ -498,7 +495,7 @@ def resetPassword():
                 'success' : False
             }
 
-            password = accountInfo.password
+            password = Security.dcryptData(accountInfo.password)
             if password != oldPassword:
                 res['current-match'] = False
                 return jsonify(res)
@@ -544,7 +541,7 @@ def forgot_password():
             message = 'Account Found and mail has been send to the registered email address'
             session['loggedin'] = True
             session['email1'] = request.form['enterEmail']
-            session['otp'] = otp
+            session['otp'] = Security.generateHash(otp)
             return redirect(url_for('verifyotp'))     
     return render_template('forgotpassword.html', error=error, message=message)
 
@@ -562,9 +559,9 @@ def verifyotp():
 
     if request.method == 'POST' and 'otp' in request.form:
         verifyotp = request.form['otp']
-        print('OTP : ', type(verifyotp))
-        print('session OTP : ', type(session['otp']))
-        if verifyotp == session['otp']:
+        # print('OTP : ', type(verifyotp))
+        # print('session OTP : ', session['otp'])
+        if Security.generateHash(verifyotp) == session['otp']:
             session.pop('otp', None)
             return redirect(url_for('changepassword')) 
         else:
@@ -584,7 +581,11 @@ def changepassword():
     if request.method == 'POST' and 'enterpass' in request.form and 'verifyenterpass' in request.form:
         changepass = request.form['enterpass']
         verifyChangepass = request.form['verifyenterpass']
-        if changepass == verifyChangepass:
+
+        if not re.match(r'^([A-Za-z0-9_\.@\$!]{8,20})$', changepass):
+            message = 'Password should be alphanumeric and atleast contain 8 characters along with special characters.'
+            return render_template('changepassword.html', message=message)
+        elif changepass == verifyChangepass:
             
             result = Services.editPassword(emailId, changepass)
 

@@ -1,9 +1,9 @@
 # Service class to provide the services to the client
-from ast import expr_context
 import psycopg2
 from models.ImageData import ImageData
 from models.User import User
 from postgres.ConnectionManager import ConnectionManager
+from utils.Security import Security
 
 
 class Services:
@@ -12,19 +12,27 @@ class Services:
     @staticmethod
     def loginService(emailId, password):
 
-        conn = ConnectionManager().getConnection()
+        logIn = False
 
         try:
-            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cursor.execute('SELECT * FROM app_users WHERE email=%s and password=%s',(emailId, password))
-            result = cursor.fetchone()
+
+            user = Services.isUserExits(emailId)
+
+            if user is None:
+                return None
+
+            dPassword = Security.dcryptData(user.password)
+
+            if dPassword == password:
+                logIn = True
         except:
             print("Exception occured in loginService")
 
-        if result is None:
-            return None
+        if logIn:
+            return User(user.firstName, user.lastName, user.email, id=user.id)
 
-        return User(result['fname'], result['lname'], result['email'], id=result['id'])
+        return None
+        
 
     # method to check if the given user exists or not usin email
     @staticmethod 
@@ -51,7 +59,7 @@ class Services:
         try:
             cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cursor.execute('INSERT INTO app_users (fname,lname,email,password) VALUES (%s, %s, %s, %s)', 
-            (user.firstName, user.lastName, user.email, user.password, ))
+            (user.firstName, user.lastName, user.email, Security.encryptData(user.password), ))
             conn.commit()
 
             return True
@@ -172,7 +180,7 @@ class Services:
         try:
             cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
             cursor.execute('UPDATE app_users SET password=%s WHERE email=%s',
-                            (newPassword, emailId))
+                            (Security.encryptData(newPassword), emailId))
             conn.commit()
             return True
         except:
