@@ -8,3 +8,7 @@ postgres/*.py
 static/model/
 static/cache/*
 utils/confidential/*
+
+test/resources/color/*
+test/resources/drivers/*
+test/resources/gray/*

@@ -6,7 +6,7 @@ from utils.Security import Security
 
 class SecurityTest(unittest.TestCase):
     
-    
+    # to test the encryption functionality
     def test_encryption(self):
         msg1 = "THis is test meassage"
         msg2 = "This is test meassage"
@@ -15,7 +15,7 @@ class SecurityTest(unittest.TestCase):
 
         self.assertNotEqual(cipher1, cipher2)
 
-
+    # to test the decryption functionality
     def test_decryption(self):
         msg1 = "THis is test meassage"
         msg2 = "This is test meassage"

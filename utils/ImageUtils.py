@@ -85,14 +85,14 @@ class ImageUtils:
         # using tensorflow to check if the image is grayscale or not
         image = tf.io.read_file(imgPath)
         image = tf.image.decode_jpeg(image)
-        print(image.numpy().shape)
+        # print(image.numpy().shape)
 
         isGrayScale = True
 
         if len(image.shape) == 3 and image.shape[2] == 3:
             isGrayScale = False
 
-        print(f'is gray : {isGrayScale}')
+        # print(f'is gray : {isGrayScale}')
 
         # if tensorflow give result as false then checking with cv2
         if not isGrayScale:
