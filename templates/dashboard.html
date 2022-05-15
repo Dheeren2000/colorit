@@ -37,6 +37,15 @@
             -ms-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
         }
+        
+        .links {
+            color: black;
+        }
+        
+        .links:active,
+        .links:hover {
+            color: blue;
+        }
     </style>
 </head>
 
@@ -57,23 +66,23 @@
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion" id="sidenavAccordion" style=" background:  linear-gradient(-30deg,#41607e ,#111223,#111222);">
                 <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <a class="nav-link" href="#">
+                    <div class="nav" style="background: white; border-radius:5px; margin-left: 4px; margin-right: 4px;">
+                        <a class="nav-link links" href="#">
                             <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
                             Home
                         </a>
 
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#change-password-modal">
+                        <a class="nav-link links" href="#" data-toggle="modal" data-target="#change-password-modal">
                             <div class="sb-nav-link-icon"><i class="fas fa-pen"></i></div>
                             Change the Password
                         </a>
 
-                        <a class="nav-link" href="{{url_for('redirect_gallery')}}">
+                        <a class="nav-link links" href="{{url_for('redirect_gallery')}}">
                             <div class="sb-nav-link-icon"><i class="fas fa-image"></i></div>
                             Gallery
                         </a>
 
-                        <a class="nav-link" href="{{url_for('logout')}}">
+                        <a class="nav-link links" href="{{url_for('logout')}}">
                             <div class="sb-nav-link-icon"><i class="fas fa-power-off"></i></div>
                             Logout
                         </a>
