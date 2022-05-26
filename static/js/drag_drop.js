@@ -226,7 +226,13 @@ upload_btn.addEventListener('click', (event) => {
             .then(result => {
                 console.log(result.body);
                 console.log('status : ', result['status']);
-                if (result['status'] < 0) {
+
+                if (result['status'] == -8888) {
+                    popupModal('Image Dimensions Exceeds ', 'Image dimensions exceeds, please upload image with size less than 720x480');
+                    formData.delete(imageDataName);
+                    showImageFile();
+                    showLoading(false);
+                } else if (result['status'] == -9999) {
                     popupModal('Invalid Image', 'Given is the Color Image, Please upload a B/W Image');
                     formData.delete(imageDataName);
                     showImageFile();

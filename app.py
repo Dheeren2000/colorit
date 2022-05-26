@@ -1,6 +1,7 @@
 import base64
 import io
 from subprocess import CREATE_NEW_CONSOLE
+from cv2 import imread
 from flask import *
 import secrets
 import re
@@ -188,6 +189,24 @@ def colorizeImage():
         grayFilePath = os.path.join(app.config['UPLOAD_FOLDER'], imageFileName)
         print(f'Path to save imagefile : {grayFilePath}')
         imageFile.save(grayFilePath)
+
+        # checking if the image size is less than or equal to 720 x 480
+        img = imread(grayFilePath)
+
+        print(img.shape)
+
+        img_h = img.shape[0]
+        img_w = img.shape[1]
+
+        if img_h > 480 or img_w > 720:
+            res = {
+                'status' : -8888,
+                'uid' : None,
+                'message' : 'Size-exceed'
+            }
+            print(f'Removing the "{grayFilePath}" : Size-exceed')
+            os.remove(grayFilePath)
+            return jsonify(res)
 
         # checking whether given file is grayscale or not 
         isGrayScale = ImageUtils.isGrayImage(grayFilePath)
